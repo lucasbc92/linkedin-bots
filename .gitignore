@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Generated knowledge-graph output
+graphify-out/
+
+# Packaging
+*.egg-info/
+build/
+dist/

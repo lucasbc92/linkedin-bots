@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "linkedin-bots"
+version = "1.0.0"
+description = "Selenium bots that drive your own logged-in Chrome to automate LinkedIn outreach: connection invitations, follow-up messages and withdrawing stale invitations."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Lucas Bueno Cesario" }]
+requires-python = ">=3.10"
+dependencies = [
+    "selenium==4.33.0",
+    "argcomplete>=3.0",
+    "platformdirs>=4.0",
+    "tzdata; sys_platform == 'win32'",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "lxml>=5.0"]
+
+[project.urls]
+Repository = "https://github.com/lucasbc92/linkedin-bots"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+linkedin_bots = ["*/templates/*.txt"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
