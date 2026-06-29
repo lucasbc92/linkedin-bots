@@ -21,6 +21,9 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "lxml>=5.0"]
 
+[project.scripts]
+linkedin-bots = "linkedin_bots.cli:main"
+
 [project.urls]
 Repository = "https://github.com/lucasbc92/linkedin-bots"
 

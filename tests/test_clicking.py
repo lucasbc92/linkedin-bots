@@ -98,5 +98,21 @@ class ClickLadderTest(unittest.TestCase):
         self.assertFalse(c._cdp_click(_Element()))
 
 
+class EveryClickerSharesTheLadderTest(unittest.TestCase):
+    """One implementation of the ladder, not one per bot."""
+
+    def test_clickers_inherit_rather_than_redefine(self):
+        from linkedin_bots.connecting.adapters.selenium.invite_modal import SeleniumInviteModal
+        from linkedin_bots.connecting.adapters.selenium.profile_page import SeleniumProfilePage
+        from linkedin_bots.connecting.adapters.selenium.search_results_page import (
+            SeleniumSearchResults)
+
+        for bot in (SeleniumSearchResults, SeleniumProfilePage, SeleniumInviteModal):
+            self.assertTrue(issubclass(bot, ClickMixin), bot.__name__)
+            for method in ("_robust_click", "_cdp_click"):
+                self.assertNotIn(method, vars(bot),
+                                 f"{bot.__name__} still defines its own {method}")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,5 @@
+Olá, {name}! Tudo bem? 😊
+Sou dev full stack experiente e atuo em toda a stack, do back-end ao front-end. Uso IA em todo o desenvolvimento, do planejamento e da codificação até a entrega. 🤖🚀
+
+Em busca de novas oportunidades de trabalho.
+Um abraço,
