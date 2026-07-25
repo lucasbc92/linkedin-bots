@@ -1,0 +1,10 @@
+Olá, {name}, tudo bem?
+
+Agradeço por aceitar a conexão! 😊 Deixo um breve contexto, prometo ser rápido.
+
+Sou dev full stack e atuo em toda a stack, do back-end e APIs ao front-end com frameworks JavaScript e infraestrutura em nuvem com containers, e me adapto ao que cada projeto precisar. Uso IA de ponta a ponta no meu fluxo de trabalho, da especificação e do design ao código, aos testes e à entrega, o que me permite entregar software de qualidade mais rápido.
+
+Estou em busca de novas oportunidades de trabalho. Se tiver algo que combine com o meu perfil, adoraria saber; se não for o momento, me manter no radar já ajuda muito. E se quiser só trocar uma ideia, é só chamar!
+Você encontra mais sobre o meu trabalho no meu perfil do LinkedIn.
+
+Um abraço

@@ -1,0 +1,12 @@
+Olá, {name}! Quanto tempo, hein? Espero que esteja tudo bem por aí. 😊
+
+Passando para contar que estou em busca de uma nova oportunidade de trabalho.
+
+Um resumo rápido do meu perfil:
+• experiência full stack, do back-end ao front-end, passando por APIs e infraestrutura em nuvem;
+• sistemas de alto volume em produção e histórico de destravar incidentes críticos; 🧑‍🚒🔥
+• desenvolvimento assistido por IA de ponta a ponta, do planejamento à entrega, com mais velocidade e qualidade.
+
+Se souber de alguma vaga alinhada a esse perfil, ou puder me indicar para alguém do seu time, agradeço muito. E se quiser só trocar uma ideia, melhor ainda!
+
+Um abraço

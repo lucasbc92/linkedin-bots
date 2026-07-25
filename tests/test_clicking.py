@@ -106,8 +106,12 @@ class EveryClickerSharesTheLadderTest(unittest.TestCase):
         from linkedin_bots.connecting.adapters.selenium.profile_page import SeleniumProfilePage
         from linkedin_bots.connecting.adapters.selenium.search_results_page import (
             SeleniumSearchResults)
+        from linkedin_bots.messaging.adapters.selenium.conversation_list import (
+            SeleniumConversationList)
+        from linkedin_bots.messaging.adapters.selenium.thread_page import SeleniumThreadPage
 
-        for bot in (SeleniumSearchResults, SeleniumProfilePage, SeleniumInviteModal):
+        for bot in (SeleniumSearchResults, SeleniumProfilePage, SeleniumInviteModal,
+                    SeleniumConversationList, SeleniumThreadPage):
             self.assertTrue(issubclass(bot, ClickMixin), bot.__name__)
             for method in ("_robust_click", "_cdp_click"):
                 self.assertNotIn(method, vars(bot),

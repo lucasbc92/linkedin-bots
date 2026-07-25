@@ -4,6 +4,7 @@
 Usage
 -----
   linkedin-bots connect [options]   Send connection requests
+  linkedin-bots message [options]   Send follow-up messages
 
 Shell tab-completion (one-time setup)
 --------------------------------------
@@ -30,10 +31,10 @@ import sys
 
 import argcomplete
 
-from linkedin_bots.cli import connect
+from linkedin_bots.cli import connect, message
 from linkedin_bots.shared.infrastructure.paths import DataHomeError
 
-COMMANDS = (connect,)
+COMMANDS = (connect, message)
 
 
 def build_parser():

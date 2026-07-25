@@ -1,11 +1,13 @@
 """The linkedin-bots command."""
+import logging
 import subprocess
 import sys
 
 import pytest
 
 from linkedin_bots import cli
-from linkedin_bots.cli._common import start_logging
+from linkedin_bots.cli._common import require_template, start_logging
+from linkedin_bots.shared.infrastructure.templates import template_dir
 
 
 def test_cli_runs_from_any_folder(tmp_path):
@@ -14,14 +16,41 @@ def test_cli_runs_from_any_folder(tmp_path):
         cwd=tmp_path, capture_output=True, text=True, timeout=60)
     assert result.returncode == 0, result.stderr
     assert "linkedin-bots" in result.stdout
-    for command in ("connect",):
+    for command in ("connect", "message"):
         assert command in result.stdout
+
+
+def test_message_pairs_are_collected_repeatably():
+    parser = cli.build_parser()
+    assert parser.parse_args(["message"]).last_message_regex_custom == []
+
+    args = parser.parse_args([
+        "message",
+        "--last-message-regex", ".*há 7.*",
+        "--last-message-regex-custom", ".*for 7.*", "message_english.txt",
+        "--last-message-regex-custom", ".*hace 7.*", "message_es.txt",
+    ])
+    assert args.last_message_regex == ".*há 7.*"
+    assert args.last_message_regex_custom == [
+        [".*for 7.*", "message_english.txt"],
+        [".*hace 7.*", "message_es.txt"],
+    ]
 
 
 def test_every_command_defaults_to_info():
     parser = cli.build_parser()
-    for command in ("connect",):
+    for command in ("connect", "message"):
         assert parser.parse_args([command]).log_level == "INFO"
+
+
+def test_a_missing_template_exits_with_an_error(caplog):
+    logger = logging.getLogger("linkedin_bot")
+    with pytest.raises(SystemExit) as stopped:
+        require_template("nope.txt", "messaging", "-m/--message", logger)
+    assert stopped.value.code == 1
+    assert "nope.txt" in caplog.text
+    assert require_template("message_english.txt", "messaging", "-m/--message",
+                            logger) == template_dir("messaging") / "message_english.txt"
 
 
 def test_missing_template_stops_before_the_browser(monkeypatch):
@@ -46,6 +75,13 @@ def test_runs_log_their_log_file(isolated_data_home):
         for handler in list(logger.handlers):
             handler.close()
             logger.removeHandler(handler)
+
+
+def test_an_empty_template_name_exits_instead_of_sending_the_fallback(caplog):
+    """``-m ""`` resolves to the templates folder itself, which exists."""
+    with pytest.raises(SystemExit) as stopped:
+        require_template("", "messaging", "-m/--message", logging.getLogger("linkedin_bot"))
+    assert stopped.value.code == 1
 
 
 def test_the_fast_flag_reaches_the_parser():
