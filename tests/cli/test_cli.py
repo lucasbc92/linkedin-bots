@@ -16,7 +16,7 @@ def test_cli_runs_from_any_folder(tmp_path):
         cwd=tmp_path, capture_output=True, text=True, timeout=60)
     assert result.returncode == 0, result.stderr
     assert "linkedin-bots" in result.stdout
-    for command in ("connect", "message"):
+    for command in ("connect", "message", "stats"):
         assert command in result.stdout
 
 
@@ -82,6 +82,14 @@ def test_an_empty_template_name_exits_instead_of_sending_the_fallback(caplog):
     with pytest.raises(SystemExit) as stopped:
         require_template("", "messaging", "-m/--message", logging.getLogger("linkedin_bot"))
     assert stopped.value.code == 1
+
+
+def test_a_relative_data_home_is_a_usage_error(monkeypatch, capsys):
+    monkeypatch.setenv("LINKEDIN_BOTS_HOME", "lb-data")
+    with pytest.raises(SystemExit) as stopped:
+        cli.main(["stats"])
+    assert stopped.value.code == 2
+    assert "LINKEDIN_BOTS_HOME" in capsys.readouterr().err
 
 
 def test_the_fast_flag_reaches_the_parser():
