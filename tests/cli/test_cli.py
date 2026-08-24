@@ -16,7 +16,7 @@ def test_cli_runs_from_any_folder(tmp_path):
         cwd=tmp_path, capture_output=True, text=True, timeout=60)
     assert result.returncode == 0, result.stderr
     assert "linkedin-bots" in result.stdout
-    for command in ("connect", "message", "stats"):
+    for command in ("connect", "message", "withdraw", "stats"):
         assert command in result.stdout
 
 
@@ -39,7 +39,7 @@ def test_message_pairs_are_collected_repeatably():
 
 def test_every_command_defaults_to_info():
     parser = cli.build_parser()
-    for command in ("connect", "message"):
+    for command in ("connect", "message", "withdraw"):
         assert parser.parse_args([command]).log_level == "INFO"
 
 
@@ -66,9 +66,9 @@ def test_missing_template_stops_before_the_browser(monkeypatch):
 
 
 def test_runs_log_their_log_file(isolated_data_home):
-    logger, path = start_logging("connecting", "INFO")
+    logger, path = start_logging("withdrawing", "INFO")
     try:
-        assert path.parent == isolated_data_home / "connecting" / "logs"
+        assert path.parent == isolated_data_home / "withdrawing" / "logs"
         assert path.name.startswith("week-")
         assert f"Log file: {path}" in path.read_text(encoding="utf-8")
     finally:
@@ -90,6 +90,29 @@ def test_a_relative_data_home_is_a_usage_error(monkeypatch, capsys):
         cli.main(["stats"])
     assert stopped.value.code == 2
     assert "LINKEDIN_BOTS_HOME" in capsys.readouterr().err
+
+
+def test_withdraw_keeps_the_pc_awake_and_restores_it(monkeypatch):
+    import linkedin_bots.shared.infrastructure.browser as browser
+    import linkedin_bots.shared.infrastructure.sleep as sleep
+    import linkedin_bots.withdrawing.adapters.selenium.sent_invitations_page as page_module
+
+    calls = []
+    monkeypatch.setattr(browser, "create_driver", lambda attach_to_existing: (None, False))
+    monkeypatch.setattr(sleep, "prevent_sleep", lambda: calls.append("prevent"))
+    monkeypatch.setattr(sleep, "allow_sleep", lambda: calls.append("allow"))
+
+    class FakePage:
+        def __init__(self, driver):
+            pass
+
+        def probe(self):
+            calls.append("probe")
+            raise KeyboardInterrupt
+
+    monkeypatch.setattr(page_module, "SeleniumSentInvitationsPage", FakePage)
+    cli.main(["withdraw", "--probe"])
+    assert calls == ["prevent", "probe", "allow"]
 
 
 def test_the_fast_flag_reaches_the_parser():
