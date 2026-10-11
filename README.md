@@ -2,6 +2,8 @@
 
 # linkedin-bots
 
+[![CI](https://github.com/lucasbc92/linkedin-bots/actions/workflows/ci.yml/badge.svg)](https://github.com/lucasbc92/linkedin-bots/actions/workflows/ci.yml)
+
 A small set of Python + Selenium bots that automate LinkedIn outreach by driving
 **your own already-logged-in Chrome session**. Three bots, one command:
 
@@ -231,7 +233,7 @@ Register-ArgumentCompleter -Native -CommandName linkedin-bots -ScriptBlock {
 
 ```
 linkedin-bots/
-├── pyproject.toml               # package, dependencies, console script
+├── pyproject.toml               # package, dependencies, console script, architecture contracts
 ├── src/linkedin_bots/
 │   ├── cli/                     # composition root: one module per command
 │   ├── connecting/              # Connect bot   → docs/connecting.md
@@ -248,12 +250,14 @@ linkedin-bots/
 ```
 
 All three contexts follow the same hexagonal shape. Dependencies point
-inward (adapters → application → domain), and contexts never import each other.
+inward (adapters → application → domain), contexts never import each other,
+and `lint-imports` (run in CI) fails the build otherwise.
 
 ## Running the tests
 
 ```bash
 python -m pytest     # the whole suite; tests never touch your real data directory
+lint-imports         # the architecture contracts declared in pyproject.toml
 ```
 
 Run them with pytest, not `unittest`: `tests/conftest.py` points every test at

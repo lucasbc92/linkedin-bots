@@ -20,4 +20,4 @@ def test_no_doc_points_at_unittest_discover():
 def test_the_readmes_say_how_to_run_the_tests():
     for name in ("README.md", "README.pt-BR.md"):
         text = (ROOT / name).read_text(encoding="utf-8")
-        assert "python -m pytest" in text, name
+        assert "python -m pytest" in text and "lint-imports" in text, name

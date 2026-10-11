@@ -19,7 +19,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "lxml>=5.0"]
+dev = ["pytest>=8.0", "import-linter>=2.1", "lxml>=5.0"]
 
 [project.scripts]
 linkedin-bots = "linkedin_bots.cli:main"
@@ -35,3 +35,64 @@ linkedin_bots = ["*/templates/*.txt"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.importlinter]
+root_package = "linkedin_bots"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "The CLI composes the contexts; the contexts build on the shared kernel"
+type = "layers"
+layers = [
+    "linkedin_bots.cli",
+    "linkedin_bots.connecting | linkedin_bots.messaging | linkedin_bots.withdrawing",
+    "linkedin_bots.shared",
+]
+
+[[tool.importlinter.contracts]]
+name = "Bounded contexts are independent"
+type = "independence"
+modules = [
+    "linkedin_bots.connecting",
+    "linkedin_bots.messaging",
+    "linkedin_bots.withdrawing",
+]
+
+[[tool.importlinter.contracts]]
+name = "Hexagonal layers inside each context"
+type = "layers"
+containers = ["linkedin_bots.connecting", "linkedin_bots.messaging", "linkedin_bots.withdrawing"]
+layers = ["adapters", "application", "domain"]
+
+[[tool.importlinter.contracts]]
+name = "Shared kernel: infrastructure builds on domain"
+type = "layers"
+containers = ["linkedin_bots.shared"]
+layers = ["infrastructure", "domain"]
+
+[[tool.importlinter.contracts]]
+name = "Domain and application code never touch Selenium"
+type = "forbidden"
+source_modules = [
+    "linkedin_bots.shared.domain",
+    "linkedin_bots.connecting.domain",
+    "linkedin_bots.connecting.application",
+    "linkedin_bots.messaging.domain",
+    "linkedin_bots.messaging.application",
+    "linkedin_bots.withdrawing.domain",
+    "linkedin_bots.withdrawing.application",
+]
+forbidden_modules = ["selenium"]
+
+[[tool.importlinter.contracts]]
+name = "Domain and application code stay off the shared infrastructure"
+type = "forbidden"
+source_modules = [
+    "linkedin_bots.connecting.domain",
+    "linkedin_bots.connecting.application",
+    "linkedin_bots.messaging.domain",
+    "linkedin_bots.messaging.application",
+    "linkedin_bots.withdrawing.domain",
+    "linkedin_bots.withdrawing.application",
+]
+forbidden_modules = ["linkedin_bots.shared.infrastructure"]

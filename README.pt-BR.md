@@ -2,6 +2,8 @@
 
 # linkedin-bots
 
+[![CI](https://github.com/lucasbc92/linkedin-bots/actions/workflows/ci.yml/badge.svg)](https://github.com/lucasbc92/linkedin-bots/actions/workflows/ci.yml)
+
 Um pequeno conjunto de bots em Python + Selenium que automatizam a prospecção
 no LinkedIn controlando **a sua própria sessão do Chrome, já logada**. Três
 bots, um único comando:
@@ -237,7 +239,7 @@ Register-ArgumentCompleter -Native -CommandName linkedin-bots -ScriptBlock {
 
 ```
 linkedin-bots/
-├── pyproject.toml               # pacote, dependências, comando de console
+├── pyproject.toml               # pacote, dependências, comando de console, contratos de arquitetura
 ├── src/linkedin_bots/
 │   ├── cli/                     # raiz de composição: um módulo por comando
 │   ├── connecting/              # bot Connect   → docs/connecting.pt-BR.md
@@ -254,13 +256,15 @@ linkedin-bots/
 ```
 
 Os três contextos seguem o mesmo formato hexagonal. As dependências
-apontam para dentro (adapters → application → domain), e os contextos nunca
-importam uns aos outros.
+apontam para dentro (adapters → application → domain), os contextos nunca
+importam uns aos outros, e o `lint-imports` (rodado no CI) faz o build falhar
+caso contrário.
 
 ## Rodando os testes
 
 ```bash
 python -m pytest     # a suíte inteira; os testes nunca tocam na sua pasta de dados real
+lint-imports         # os contratos de arquitetura declarados no pyproject.toml
 ```
 
 Rode com o pytest, não com o `unittest`: o `tests/conftest.py` aponta cada teste
