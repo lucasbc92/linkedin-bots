@@ -303,9 +303,9 @@ bots, um único comando:
 
 | Bot | Comando | O que faz | Docs |
 |-----|---------|-----------|------|
-| **Connect** | `linkedin-bots connect` | Percorre os resultados da busca de pessoas e envia convites de conexão personalizados. | [docs/connecting.pt-BR.md](docs/connecting.pt-BR.md) |
-| **Message** | `linkedin-bots message` | Percorre a caixa de entrada do Messaging e envia uma mensagem de acompanhamento personalizada para cada conversa. | [docs/messaging.pt-BR.md](docs/messaging.pt-BR.md) |
-| **Withdraw** | `linkedin-bots withdraw` | Retira os convites enviados mais antigos que uma data de corte, do mais antigo para o mais novo, para liberar a lista limitada de pendentes. | [docs/withdrawing.pt-BR.md](docs/withdrawing.pt-BR.md) |
+| **Connect** | `linkedin-bots connect` | Percorre os resultados da busca de pessoas e envia convites de conexão personalizados. | [docs/connecting.md](docs/connecting.md#português-brasil) |
+| **Message** | `linkedin-bots message` | Percorre a caixa de entrada do Messaging e envia uma mensagem de acompanhamento personalizada para cada conversa. | [docs/messaging.md](docs/messaging.md#português-brasil) |
+| **Withdraw** | `linkedin-bots withdraw` | Retira os convites enviados mais antigos que uma data de corte, do mais antigo para o mais novo, para liberar a lista limitada de pendentes. | [docs/withdrawing.md](docs/withdrawing.md#português-brasil) |
 
 Cada bot tem seu próprio guia, com a referência completa de opções e notas de
 implementação. Esta página cobre tudo o que eles têm em comum: instalação,
@@ -422,7 +422,7 @@ python -m linkedin_bots …           # o mesmo, sem o comando de console
 ```
 
 Veja o guia de cada bot para a lista completa de opções:
-[connect](docs/connecting.pt-BR.md#opções) · [message](docs/messaging.pt-BR.md#opções) · [withdraw](docs/withdrawing.pt-BR.md#uso).
+[connect](docs/connecting.md#opções) · [message](docs/messaging.md#opções) · [withdraw](docs/withdrawing.md#uso).
 
 ### Templates
 
@@ -564,9 +564,9 @@ linkedin-bots/
 ├── pyproject.toml               # pacote, dependências, comando de console, contratos de arquitetura
 ├── src/linkedin_bots/
 │   ├── cli/                     # raiz de composição: um módulo por comando
-│   ├── connecting/              # bot Connect   → docs/connecting.pt-BR.md
-│   ├── messaging/               # bot Message   → docs/messaging.pt-BR.md
-│   ├── withdrawing/             # bot Withdraw  → docs/withdrawing.pt-BR.md
+│   ├── connecting/              # bot Connect   → docs/connecting.md
+│   ├── messaging/               # bot Message   → docs/messaging.md
+│   ├── withdrawing/             # bot Withdraw  → docs/withdrawing.md
 │   │   ├── domain/              #   regras puras: idade dos convites, o que retirar
 │   │   ├── application/         #   caso de uso + as portas que ele usa
 │   │   └── adapters/selenium/   #   Page Objects do LinkedIn
