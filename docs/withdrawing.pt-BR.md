@@ -7,7 +7,7 @@ todo convite mais antigo que ela, do mais antigo para o mais novo — a lista de
 convites pendentes tem limite, e são os convites de meses atrás, nunca aceitos,
 que a enchem.
 
-> Veja o [README principal](../README.pt-BR.md) para a configuração única
+> Veja o [README principal](../README.md#português-brasil) para a configuração única
 > (conectar o Chrome, instalar as dependências) e as convenções comuns aos
 > bots.
 

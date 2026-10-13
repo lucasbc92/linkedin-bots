@@ -6,7 +6,7 @@ Percorre os **resultados da busca de pessoas** do LinkedIn e envia convites de
 conexão personalizados, página por página, até acabarem os resultados ou
 atingir o limite semanal de convites do LinkedIn.
 
-> Veja o [README principal](../README.pt-BR.md) para a configuração única
+> Veja o [README principal](../README.md#português-brasil) para a configuração única
 > (conectar o Chrome, instalar as dependências) e as convenções comuns aos dois
 > bots.
 
@@ -36,7 +36,7 @@ A partir de uma aba aberta de **resultados da busca de pessoas**
 
 O texto da mensagem vem de um template em [`src/linkedin_bots/connecting/templates/`](../src/linkedin_bots/connecting/templates/).
 `{name}` é trocado pelo primeiro nome do contato; veja
-[Templates](../README.pt-BR.md#templates) no README principal para o formato.
+[Templates](../README.md#templates-1) no README principal para o formato.
 
 ## Uso
 
@@ -56,7 +56,7 @@ linkedin-bots connect -f                    # rápido: pausas mínimas entre con
 
 | Flag | Padrão | Significado |
 |------|--------|-------------|
-| `-m`, `--message ARQUIVO` | `message.txt` | Arquivo de template. Um nome de arquivo sozinho é procurado na sua pasta de templates (veja [Templates](../README.pt-BR.md#templates)) e depois em `src/linkedin_bots/connecting/templates/`; um caminho é usado como está. Um arquivo que não existe interrompe a execução (a menos que `-n` o torne irrelevante). |
+| `-m`, `--message ARQUIVO` | `message.txt` | Arquivo de template. Um nome de arquivo sozinho é procurado na sua pasta de templates (veja [Templates](../README.md#templates-1)) e depois em `src/linkedin_bots/connecting/templates/`; um caminho é usado como está. Um arquivo que não existe interrompe a execução (a menos que `-n` o torne irrelevante). |
 | `-n`, `--no-message` | desligado | Envia convites **sem** nota (clica em "Send without a note"). |
 | `-r`, `--reverse` | desligado | Navega pelos resultados ao contrário (clica em **Previous** em vez de **Next**). |
 | `-y`, `--yes` | desligado | Segue automaticamente além do aviso "close to the weekly invitation limit", em vez de perguntar. |
@@ -204,7 +204,7 @@ mostra o resumo da sessão (`sent / failed / skipped`).
 
 Todo convite confirmado é gravado na hora em `connecting/invites.jsonl`,
 na pasta de dados (fora do repositório — guarda nomes reais de contatos;
-veja [Onde ficam os dados](../README.pt-BR.md#onde-ficam-os-dados)). Como é gravado no
+veja [Onde ficam os dados](../README.md#onde-ficam-os-dados)). Como é gravado no
 instante em que o convite é registrado, a contagem sobrevive a um `Ctrl+C`, a
 uma falha ou a uma execução num nível de log que esconde as linhas INFO.
 

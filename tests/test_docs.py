@@ -17,7 +17,8 @@ def test_no_doc_points_at_unittest_discover():
     assert offenders == []
 
 
-def test_the_readmes_say_how_to_run_the_tests():
-    for name in ("README.md", "README.pt-BR.md"):
-        text = (ROOT / name).read_text(encoding="utf-8")
-        assert "python -m pytest" in text and "lint-imports" in text, name
+def test_the_readme_says_how_to_run_the_tests_in_each_language():
+    english, portuguese = (ROOT / "README.md").read_text(
+        encoding="utf-8").split("\n## Português (Brasil)\n")
+    for text in (english, portuguese):
+        assert "python -m pytest" in text and "lint-imports" in text

@@ -6,7 +6,7 @@ Percorre a caixa de entrada do **Messaging** do LinkedIn (`linkedin.com/messagin
 da mais recente para a mais antiga e envia uma mensagem de acompanhamento
 personalizada para cada conversa existente.
 
-> Veja o [README principal](../README.pt-BR.md) para a configuração única
+> Veja o [README principal](../README.md#português-brasil) para a configuração única
 > (conectar o Chrome, instalar as dependências) e as convenções comuns aos dois
 > bots.
 
@@ -42,12 +42,12 @@ alvo.
 O texto da mensagem vem de um template em [`src/linkedin_bots/messaging/templates/`](../src/linkedin_bots/messaging/templates/).
 `{name}` é trocado pelo primeiro nome do contato. Diferente do bot connect,
 mensagens diretas **não têm limite de 300 caracteres**, então os templates
-nunca são cortados. Veja [Templates](../README.pt-BR.md#templates) no README
+nunca são cortados. Veja [Templates](../README.md#templates-1) no README
 principal para o formato.
 
 Os templates distribuídos são genéricos: um de acompanhamento e um de
 reabordagem por idioma. Seus próprios templates têm prioridade sobre eles pelo
-nome (veja [Templates](../README.pt-BR.md#templates)).
+nome (veja [Templates](../README.md#templates-1)).
 
 | Template | Idioma | Uso |
 |----------|--------|-----|
@@ -148,7 +148,7 @@ contato com o template que seria usado.
 
 Todo contato para quem uma mensagem foi enviada com confirmação também é
 registrado em `messaging/sent_history.json`, na pasta de dados (veja
-[Onde ficam os dados](../README.pt-BR.md#onde-ficam-os-dados)). A lista de
+[Onde ficam os dados](../README.md#onde-ficam-os-dados)). A lista de
 conversas se reordena por atividade recente — uma resposta, ou atividade em
 qualquer outra conversa — então ela não é só acrescentada entre uma execução e
 outra. O histórico é carregado na inicialização e usado como checagem para
