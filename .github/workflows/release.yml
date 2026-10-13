@@ -28,6 +28,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
+      # The executable ships one generic template per bot, not the author's own.
+      - name: Use the generic templates
+        run: |
+          for context in connecting messaging; do
+            rm src/linkedin_bots/$context/templates/*.txt
+            cp packaging/templates/$context/message.txt src/linkedin_bots/$context/templates/
+          done
       - name: Install
         run: python -m pip install . pyinstaller==6.22.3
       # The entry script lives here rather than in the repo, so any tag can be built.
@@ -51,6 +58,8 @@ jobs:
                       'tzdata\zoneinfo\America\Sao_Paulo'; do
             grep -qF "$file" contents.txt || { echo "missing from the bundle: $file"; exit 1; }
           done
+          templates=$(grep -cF '\templates\' contents.txt)
+          [ "$templates" = 2 ] || { echo "expected 2 bundled templates, found $templates"; exit 1; }
       - name: Attach to the release
         run: |
           asset="linkedin-bots-${TAG#v}-windows-x64.exe"

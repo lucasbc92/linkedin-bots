@@ -1,0 +1,10 @@
+Hi {name}, how are you?
+
+Thanks for accepting my connection request! 😊 Just a quick bit of context, I promise to keep it short.
+
+I'm a full stack developer who works across the entire stack, from back end and APIs to front end JavaScript frameworks and cloud, containerized infrastructure, and I'm comfortable picking up whatever a project needs. I use AI end to end in my workflow, from specs and design to code, tests and delivery, which lets me ship quality software faster.
+
+I'm currently open to new job opportunities. If you have something that might be a good fit, I'd love to hear about it; if the timing isn't right, keeping me on your radar would mean a lot. And if you'd just like to chat, feel free to reach out!
+You can find more about my work on my LinkedIn profile.
+
+Best regards
