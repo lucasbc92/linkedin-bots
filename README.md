@@ -61,7 +61,7 @@ On Windows you can skip Python entirely: download
 `linkedin-bots-<version>-windows-x64.exe` from the
 [latest release](https://github.com/lucasbc92/linkedin-bots/releases/latest)
 and run it in place of `linkedin-bots`
-(e.g. `linkedin-bots-1.0.2-windows-x64.exe connect`). Chrome is still required.
+(e.g. `linkedin-bots-1.1.0-windows-x64.exe connect`). Chrome is still required.
 
 - It ships one generic English `message.txt` per bot (the shipped
   `message_english.txt`), built in and not editable. Put your own templates in
