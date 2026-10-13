@@ -7,7 +7,7 @@ import sys
 import pytest
 
 from linkedin_bots import cli
-from linkedin_bots.cli._common import require_template, start_logging
+from linkedin_bots.cli._common import TemplateCompleter, require_template, start_logging
 from linkedin_bots.shared.infrastructure.templates import template_dir
 
 
@@ -62,6 +62,16 @@ def test_a_missing_template_exits_with_an_error(caplog):
     assert "nope.txt" in caplog.text
     assert require_template("message_english.txt", "messaging", "-m/--message",
                             logger) == template_dir("messaging") / "message_english.txt"
+
+
+def test_completion_offers_the_users_own_templates_too(isolated_data_home):
+    folder = isolated_data_home / "messaging" / "templates"
+    folder.mkdir(parents=True)
+    (folder / "mine.txt").write_text("Hi {name}!", encoding="utf-8")
+    (folder / "message.txt").write_text("Hi {name}, it's me.", encoding="utf-8")
+    offered = TemplateCompleter("messaging")(prefix="m")
+    assert "mine.txt" in offered and "message_english.txt" in offered
+    assert offered.count("message.txt") == 1
 
 
 def test_missing_template_stops_before_the_browser(monkeypatch):

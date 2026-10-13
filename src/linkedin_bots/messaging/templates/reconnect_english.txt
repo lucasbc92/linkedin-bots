@@ -1,0 +1,12 @@
+Hi {name}! It's been a while! I hope all is well with you. 😊
+
+A quick update: I'm looking for a new job opportunity.
+
+A short summary of my profile:
+• full stack experience, from back end to front end, including APIs and cloud infrastructure;
+• high-volume systems in production and a track record of unblocking critical incidents; 🧑‍🚒🔥
+• end-to-end AI-assisted development, from planning to delivery, shipping faster and with higher quality.
+
+If you know of a role that fits this profile, or could refer me to someone on your team, I'd really appreciate it. And if you'd just like to catch up, even better!
+
+Best regards

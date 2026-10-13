@@ -19,7 +19,8 @@ examples:
   linkedin-bots connect -f                         # fast: minimal pauses between invites
 
 by default only headlines that read as a *tech* recruiter are invited
-(scored by linkedin_bots/connecting/domain/tech_recruiter.py); templates live in:
+(scored by linkedin_bots/connecting/domain/tech_recruiter.py); templates: your
+own in <data home>/connecting/templates/ win over the shipped ones in
 src/linkedin_bots/connecting/templates/
 """
 

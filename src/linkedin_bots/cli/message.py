@@ -15,8 +15,8 @@ examples:
   linkedin-bots message --max 10
   linkedin-bots message --date-limit 2025/12/31
   linkedin-bots message --start-date 2025/07/30
-  linkedin-bots message -m message_extended.txt --max 5 --dry-run
-  linkedin-bots message -i -m reconnect_older.txt --date-limit 2024/10/20
+  linkedin-bots message -m message_english.txt --max 5 --dry-run
+  linkedin-bots message -i -m reconnect.txt --date-limit 2024/10/20
       # click an old conversation first, then walk upward (older→newer),
       # stopping once a conversation is newer than the date limit
   linkedin-bots message --last-message-regex "You:.*"
@@ -25,7 +25,8 @@ examples:
       # Portuguese previews get the -m template, English ones message_english.txt;
       # everything matching neither regex is skipped
 
-templates live in:  src/linkedin_bots/messaging/templates/
+templates: your own in <data home>/messaging/templates/ win over the
+shipped ones in src/linkedin_bots/messaging/templates/
 """
 
 

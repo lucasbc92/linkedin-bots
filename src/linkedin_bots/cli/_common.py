@@ -5,8 +5,9 @@ import sys
 from argcomplete.completers import BaseCompleter
 
 from linkedin_bots.shared.infrastructure.logging_setup import setup_logging, week_log_path
-from linkedin_bots.shared.infrastructure.paths import log_dir
-from linkedin_bots.shared.infrastructure.templates import resolve_template, template_dir
+from linkedin_bots.shared.infrastructure.paths import DataHomeError, log_dir
+from linkedin_bots.shared.infrastructure.templates import (resolve_template, template_dir,
+                                                           user_template_dir)
 
 LOG_LEVELS = ["DEBUG", "INFO", "WARN", "ERROR"]
 
@@ -32,17 +33,20 @@ def start_logging(context, level_name):
 
 
 class TemplateCompleter(BaseCompleter):
-    """Complete ``-m`` with the .txt templates shipped for one context."""
+    """Complete ``-m`` with one context's .txt templates, the user's own and the shipped ones."""
 
     def __init__(self, context):
         self._context = context
 
     def __call__(self, prefix, **kwargs):
-        try:
-            return [p.name for p in template_dir(self._context).iterdir()
-                    if p.suffix == ".txt" and p.name.startswith(prefix)]
-        except OSError:
-            return []
+        names = set()
+        for folder in (user_template_dir, template_dir):
+            try:
+                names.update(p.name for p in folder(self._context).iterdir()
+                             if p.suffix == ".txt" and p.name.startswith(prefix))
+            except (OSError, DataHomeError):
+                pass
+        return sorted(names)
 
 
 def require_template(value, context, flag, logger):

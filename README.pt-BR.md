@@ -66,9 +66,10 @@ e rode-o no lugar de `linkedin-bots`
 (ex.: `linkedin-bots-1.0.2-windows-x64.exe connect`). O Chrome continua
 necessário.
 
-- Ele traz um `message.txt` genérico em inglês por bot (de
-  [`packaging/templates/`](packaging/templates)), embutido e não editável;
-  aponte o `-m` para um arquivo seu (`-m C:\caminho\para\mensagem.txt`).
+- Ele traz um `message.txt` genérico em inglês por bot (o `message_english.txt`
+  distribuído), embutido e não editável. Coloque seus próprios templates na sua
+  pasta de dados (veja [Templates](#templates)) ou aponte o `-m` para um
+  arquivo (`-m C:\caminho\para\mensagem.txt`).
 - O executável não é assinado, então o SmartScreen mostra "O Windows protegeu
   o computador" na primeira vez: escolha **Mais informações → Executar assim
   mesmo**.
@@ -143,10 +144,16 @@ src/linkedin_bots/connecting/templates/   # usado por `linkedin-bots connect`
 src/linkedin_bots/messaging/templates/    # usado por `linkedin-bots message`
 ├── message.txt                           (padrão, português)
 ├── message_english.txt
-├── message_extended.txt                  (versão longa de cada um)
-├── message_english_extended.txt
-└── reconnect*.txt                        (reabordar contatos antigos)
+├── reconnect.txt                         (reabordar contatos antigos)
+└── reconnect_english.txt
 ```
+
+Os templates distribuídos são genéricos. **Seus próprios templates** ficam na
+sua pasta de dados (veja [Onde ficam os dados](#onde-ficam-os-dados)), em
+`<contexto>/templates/`. Um arquivo ali tem prioridade sobre o distribuído de
+mesmo nome, então um `message.txt` pessoal vira o seu padrão e os arquivos
+distribuídos cobrem o resto. Eles ficam fora do repositório e também valem para
+o executável do Windows.
 
 **Formato** (tratado por [`messages.py`](src/linkedin_bots/shared/domain/messages.py)):
 
@@ -157,8 +164,9 @@ src/linkedin_bots/messaging/templates/    # usado por `linkedin-bots message`
 - Se não for possível descobrir o nome do contato, `{name}` (e uma vírgula /
   espaço vizinhos) é removido, para que a saudação continue fluindo bem.
 
-**Escolhendo um template:** passe `-m <arquivo>` (procurado dentro da pasta de
-templates daquele bot), ou `-m <caminho>` para apontar para qualquer lugar.
+**Escolhendo um template:** passe `-m <arquivo>` (procurado na sua pasta de
+templates e depois na distribuída daquele bot), ou `-m <caminho>` para apontar
+para qualquer lugar.
 Sem `-m`, o bot usa `message.txt`.
 
 **Limites de caracteres:** as notas dos pedidos de conexão são limitadas pelo
@@ -189,10 +197,12 @@ fora do repositório, na sua pasta de dados de usuário:
 linkedin-bots/
 ├── connecting/
 │   ├── invites.jsonl        # todo convite confirmado
-│   └── logs/week-AAAA-MM-DD.log
+│   ├── logs/week-AAAA-MM-DD.log
+│   └── templates/           # seus próprios templates (opcional)
 ├── messaging/
 │   ├── sent_history.json    # todo mundo que já recebeu mensagem
-│   └── logs/
+│   ├── logs/
+│   └── templates/
 └── withdrawing/
     └── logs/
 ```

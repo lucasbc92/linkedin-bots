@@ -1,5 +1,0 @@
-Hello, {name}! How are you? 😊
-I'm an experienced full stack developer who works across the whole stack, from back end to front end, and I use AI throughout development, from planning, coding to delivery. 🤖🚀
-
-Open to new job opportunities.
-Kind regards,

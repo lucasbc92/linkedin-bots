@@ -40,15 +40,16 @@ The message text comes from a template in [`src/linkedin_bots/messaging/template
 direct messages have **no 300-character cap**, so templates are never truncated.
 See [Templates](../README.md#templates) in the root README for the format.
 
-The follow-up after an accepted invitation comes in two lengths per language —
-short by default, long when you want the full case:
+The shipped templates are generic: one follow-up and one re-approach per
+language. Your own templates win over them by name (see
+[Templates](../README.md#templates)).
 
-| Template | Language | Length |
-|----------|----------|--------|
-| `message.txt` (default) | Portuguese | short |
-| `message_english.txt` | English | short |
-| `message_extended.txt` | Portuguese | long (bullets: scale, incidents, AI-assisted delivery) |
-| `message_english_extended.txt` | English | long |
+| Template | Language | Use |
+|----------|----------|-----|
+| `message.txt` (default) | Portuguese | follow-up after an accepted invitation |
+| `message_english.txt` | English | follow-up |
+| `reconnect.txt` | Portuguese | re-approaching an old contact |
+| `reconnect_english.txt` | English | re-approaching |
 
 ## Usage
 
@@ -59,7 +60,7 @@ linkedin-bots message --max 10               # stop after 10 messages
 linkedin-bots message --date-limit 2025/12/31  # stop at conversations older than this
 linkedin-bots message --start-date 2025/07/30  # scroll down to this date and start there
 linkedin-bots message -m reconnect.txt --max 5 --dry-run
-linkedin-bots message -i -m reconnect_older.txt --date-limit 2024/10/20
+linkedin-bots message -i -m reconnect_english.txt --date-limit 2024/10/20
     # click an old conversation first, then walk upward (older→newer),
     # stopping once a conversation is newer than the date limit
 linkedin-bots message --last-message-regex ".*há 7.*" \
@@ -71,7 +72,7 @@ linkedin-bots message --last-message-regex ".*há 7.*" \
 
 | Flag | Default | Meaning |
 |------|---------|---------|
-| `-m`, `--message FILE` | `message.txt` | Template file in `src/linkedin_bots/messaging/templates/`. A bare filename is resolved against that folder; a path is used as-is. A file that doesn't exist stops the run. |
+| `-m`, `--message FILE` | `message.txt` | Template file. A bare filename is looked up in your own templates folder, then in `src/linkedin_bots/messaging/templates/`; a path is used as-is. A file that doesn't exist stops the run. |
 | `--date-limit YYYY/MM/DD` | none | Stop when a conversation is older than this date (or, with `-i`/`--inv`, newer than this date). |
 | `--start-date YYYY/MM/DD` | none | Scroll down the list (lazy-loading as needed), click the **first conversation dated on or before** this date, and start sending from there, inclusive. If no such conversation exists, the run ends without sending. |
 | `-i`, `--inv` | off | Walk the list **upward** (older → newer) instead of downward. Also flips `--date-limit` to mean "stop once a conversation is newer than this date." Useful for working through very old contacts from the bottom of the inbox up. |
@@ -113,8 +114,8 @@ Both flags take Python regular expressions, matched with `re.search` against
 the preview text (so no need to anchor them). Every pattern is compiled and
 every template file checked at startup — a bad regex or a filename typo stops
 the run before the first thread is opened, rather than silently falling back to
-generic text. Templates are resolved against `src/linkedin_bots/messaging/templates/` unless
-you give a path.
+generic text. Bare filenames are looked up as for `-m`: your own templates folder first, then
+`src/linkedin_bots/messaging/templates/`.
 
 A card whose preview LinkedIn hasn't rendered (occluded cards are emptied by
 its virtualized list) matches nothing and is skipped, so `--dry-run` is worth a

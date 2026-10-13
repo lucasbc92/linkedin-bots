@@ -56,7 +56,7 @@ linkedin-bots connect -f                    # rápido: pausas mínimas entre con
 
 | Flag | Padrão | Significado |
 |------|--------|-------------|
-| `-m`, `--message ARQUIVO` | `message.txt` | Arquivo de template em `src/linkedin_bots/connecting/templates/`. Um nome de arquivo sozinho é procurado nessa pasta; um caminho é usado como está. Um arquivo que não existe interrompe a execução (a menos que `-n` o torne irrelevante). |
+| `-m`, `--message ARQUIVO` | `message.txt` | Arquivo de template. Um nome de arquivo sozinho é procurado na sua pasta de templates (veja [Templates](../README.pt-BR.md#templates)) e depois em `src/linkedin_bots/connecting/templates/`; um caminho é usado como está. Um arquivo que não existe interrompe a execução (a menos que `-n` o torne irrelevante). |
 | `-n`, `--no-message` | desligado | Envia convites **sem** nota (clica em "Send without a note"). |
 | `-r`, `--reverse` | desligado | Navega pelos resultados ao contrário (clica em **Previous** em vez de **Next**). |
 | `-y`, `--yes` | desligado | Segue automaticamente além do aviso "close to the weekly invitation limit", em vez de perguntar. |

@@ -63,9 +63,10 @@ On Windows you can skip Python entirely: download
 and run it in place of `linkedin-bots`
 (e.g. `linkedin-bots-1.0.2-windows-x64.exe connect`). Chrome is still required.
 
-- It ships one generic English `message.txt` per bot (from
-  [`packaging/templates/`](packaging/templates)), built in and not editable;
-  point `-m` at your own file instead (`-m C:\path\to\message.txt`).
+- It ships one generic English `message.txt` per bot (the shipped
+  `message_english.txt`), built in and not editable. Put your own templates in
+  your data directory (see [Templates](#templates)), or point `-m` at a file
+  (`-m C:\path\to\message.txt`).
 - The executable isn't code-signed, so SmartScreen shows "Windows protected
   your PC" the first time: choose **More info → Run anyway**.
 
@@ -139,10 +140,16 @@ src/linkedin_bots/connecting/templates/   # used by `linkedin-bots connect`
 src/linkedin_bots/messaging/templates/    # used by `linkedin-bots message`
 ├── message.txt                           (default, Portuguese)
 ├── message_english.txt
-├── message_extended.txt                  (long version of each)
-├── message_english_extended.txt
-└── reconnect*.txt                        (re-approaching old contacts)
+├── reconnect.txt                         (re-approaching old contacts)
+└── reconnect_english.txt
 ```
+
+The shipped templates are generic. **Your own templates** go in your data
+directory (see [Where data lives](#where-data-lives)), under
+`<context>/templates/`. A file there wins over the shipped one with the same
+name, so a personal `message.txt` becomes your default and the shipped files
+fill in for the rest. They stay out of the repository and are also picked up by
+the Windows executable.
 
 **Format** (handled by [`messages.py`](src/linkedin_bots/shared/domain/messages.py)):
 
@@ -153,8 +160,8 @@ src/linkedin_bots/messaging/templates/    # used by `linkedin-bots message`
 - If the contact's name can't be determined, `{name}` (and an adjacent comma /
   space) is dropped so the greeting still reads cleanly.
 
-**Picking a template:** pass `-m <filename>` (resolved inside that bot's
-templates folder), or `-m <path>` to point anywhere. With no `-m`, the
+**Picking a template:** pass `-m <filename>` (looked up in your own templates
+folder, then in that bot's shipped one), or `-m <path>` to point anywhere. With no `-m`, the
 bot uses `message.txt`.
 
 **Character limits:** connection-request notes are capped by LinkedIn at **300
@@ -184,10 +191,12 @@ outside the repository, in your user data directory:
 linkedin-bots/
 ├── connecting/
 │   ├── invites.jsonl        # every confirmed invitation
-│   └── logs/week-YYYY-MM-DD.log
+│   ├── logs/week-YYYY-MM-DD.log
+│   └── templates/           # your own templates (optional)
 ├── messaging/
 │   ├── sent_history.json    # everyone already messaged
-│   └── logs/
+│   ├── logs/
+│   └── templates/
 └── withdrawing/
     └── logs/
 ```

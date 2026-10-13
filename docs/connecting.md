@@ -55,7 +55,7 @@ linkedin-bots connect -f                    # fast: minimal pauses between invit
 
 | Flag | Default | Meaning |
 |------|---------|---------|
-| `-m`, `--message FILE` | `message.txt` | Template file in `src/linkedin_bots/connecting/templates/`. A bare filename is resolved against that folder; a path is used as-is. A file that doesn't exist stops the run (unless `-n` makes it moot). |
+| `-m`, `--message FILE` | `message.txt` | Template file. A bare filename is looked up in your own templates folder (see [Templates](../README.md#templates)), then in `src/linkedin_bots/connecting/templates/`; a path is used as-is. A file that doesn't exist stops the run (unless `-n` makes it moot). |
 | `-n`, `--no-message` | off | Send invitations **without** a note (clicks "Send without a note"). |
 | `-r`, `--reverse` | off | Navigate results in reverse (click **Previous** instead of **Next**). |
 | `-y`, `--yes` | off | Auto-continue past the "close to the weekly invitation limit" warning instead of prompting. |
