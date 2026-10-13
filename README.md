@@ -61,7 +61,7 @@ On Windows you can skip Python entirely: download
 `linkedin-bots-<version>-windows-x64.exe` from the
 [latest release](https://github.com/lucasbc92/linkedin-bots/releases/latest)
 and run it in place of `linkedin-bots`
-(e.g. `linkedin-bots-1.0.0-windows-x64.exe connect`). Chrome is still required.
+(e.g. `linkedin-bots-1.0.1-windows-x64.exe connect`). Chrome is still required.
 
 - The default templates are built into the executable and can't be edited;
   point `-m` at your own file instead (`-m C:\path\to\message.txt`).

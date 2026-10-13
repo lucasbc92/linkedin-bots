@@ -55,6 +55,10 @@ def build_parser():
 
 def main(argv=None):
     """Entry point of the ``linkedin-bots`` command."""
+    # Redirected output takes the system code page (cp1252 on most Windows
+    # machines); escape what it cannot encode instead of crashing on it.
+    for stream in (sys.stdout, sys.stderr):
+        stream.reconfigure(errors="backslashreplace")
     parser = build_parser()
     args = parser.parse_args(argv)
     if getattr(args, "run", None) is None:

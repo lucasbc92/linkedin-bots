@@ -1,5 +1,6 @@
 """The linkedin-bots command."""
 import logging
+import os
 import subprocess
 import sys
 
@@ -18,6 +19,16 @@ def test_cli_runs_from_any_folder(tmp_path):
     assert "linkedin-bots" in result.stdout
     for command in ("connect", "message", "withdraw", "stats"):
         assert command in result.stdout
+
+
+@pytest.mark.parametrize("command", ["connect", "message", "withdraw", "stats"])
+def test_help_survives_output_redirected_on_a_cp1252_system(tmp_path, command):
+    """Redirected output on most Windows machines is cp1252, which has no '→'."""
+    env = {**os.environ, "PYTHONIOENCODING": "cp1252", "PYTHONUTF8": "0"}
+    result = subprocess.run(
+        [sys.executable, "-m", "linkedin_bots", command, "--help"],
+        cwd=tmp_path, capture_output=True, env=env, timeout=60)
+    assert result.returncode == 0, result.stderr.decode("cp1252", "replace")
 
 
 def test_message_pairs_are_collected_repeatably():
