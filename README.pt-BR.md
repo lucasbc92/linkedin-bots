@@ -57,6 +57,24 @@ O Selenium 4.33 traz o **Selenium Manager** embutido, então um ChromeDriver
 compatível é baixado automaticamente na primeira vez que você roda um bot — sem
 configurar driver manualmente.
 
+### Executável para Windows
+
+No Windows dá para dispensar o Python: baixe
+`linkedin-bots-<versão>-windows-x64.exe` da
+[release mais recente](https://github.com/lucasbc92/linkedin-bots/releases/latest)
+e rode-o no lugar de `linkedin-bots`
+(ex.: `linkedin-bots-1.0.0-windows-x64.exe connect`). O Chrome continua
+necessário.
+
+- Os templates padrão vêm embutidos no executável e não podem ser editados;
+  aponte o `-m` para um arquivo seu (`-m C:\caminho\para\mensagem.txt`).
+- O executável não é assinado, então o SmartScreen mostra "O Windows protegeu
+  o computador" na primeira vez: escolha **Mais informações → Executar assim
+  mesmo**.
+
+Ele é gerado a partir da tag da release pelo
+[`.github/workflows/release.yml`](.github/workflows/release.yml).
+
 ## Configuração: conectar o Chrome aos bots
 
 Os bots se conectam ao Chrome em `127.0.0.1:9222`, então o Chrome precisa ser

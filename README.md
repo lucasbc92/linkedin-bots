@@ -55,6 +55,22 @@ are declared in [`pyproject.toml`](pyproject.toml).
 Selenium 4.33 has **Selenium Manager** built in, so a matching ChromeDriver is
 downloaded automatically the first time you run a bot — no manual driver setup.
 
+### Windows executable
+
+On Windows you can skip Python entirely: download
+`linkedin-bots-<version>-windows-x64.exe` from the
+[latest release](https://github.com/lucasbc92/linkedin-bots/releases/latest)
+and run it in place of `linkedin-bots`
+(e.g. `linkedin-bots-1.0.0-windows-x64.exe connect`). Chrome is still required.
+
+- The default templates are built into the executable and can't be edited;
+  point `-m` at your own file instead (`-m C:\path\to\message.txt`).
+- The executable isn't code-signed, so SmartScreen shows "Windows protected
+  your PC" the first time: choose **More info → Run anyway**.
+
+It is built from the release tag by
+[`.github/workflows/release.yml`](.github/workflows/release.yml).
+
 ## Setup: attach Chrome to the bots
 
 The bots connect to Chrome on `127.0.0.1:9222`, so Chrome must be started with

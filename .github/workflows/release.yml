@@ -1,0 +1,62 @@
+name: Windows executable
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to build and attach to its release (e.g. v1.0.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  exe:
+    runs-on: windows-latest
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install
+        run: python -m pip install . pyinstaller==6.22.3
+      # The entry script lives here rather than in the repo, so any tag can be built.
+      - name: Build
+        run: |
+          printf 'from linkedin_bots.cli import main\n\nmain()\n' > "$RUNNER_TEMP/linkedin_bots_exe.py"
+          pyinstaller --onefile --console --name linkedin-bots \
+            --collect-data linkedin_bots --noconfirm \
+            "$RUNNER_TEMP/linkedin_bots_exe.py"
+      - name: Smoke test
+        run: |
+          export LINKEDIN_BOTS_HOME="$RUNNER_TEMP/home"
+          exe=dist/linkedin-bots.exe
+          "$exe" --help
+          for command in connect message withdraw stats; do "$exe" $command --help > /dev/null; done
+          "$exe" stats
+          pyi-archive_viewer --list --brief "$exe" > contents.txt
+          for file in 'linkedin_bots\connecting\templates\message.txt' \
+                      'linkedin_bots\messaging\templates\message.txt' \
+                      'selenium\webdriver\common\windows\selenium-manager.exe' \
+                      'tzdata\zoneinfo\America\Sao_Paulo'; do
+            grep -qF "$file" contents.txt || { echo "missing from the bundle: $file"; exit 1; }
+          done
+      - name: Attach to the release
+        run: |
+          asset="linkedin-bots-${TAG#v}-windows-x64.exe"
+          mv dist/linkedin-bots.exe "$asset"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" "$asset" --clobber
+          else
+            gh release create "$TAG" "$asset" --draft --verify-tag --title "linkedin-bots ${TAG#v}"
+          fi
