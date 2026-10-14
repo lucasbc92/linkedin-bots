@@ -16,7 +16,7 @@ examples:
   linkedin-bots message --date-limit 2025/12/31
   linkedin-bots message --start-date 2025/07/30
   linkedin-bots message -m message_english.txt --max 5 --dry-run
-  linkedin-bots message -i -m reconnect.txt --date-limit 2024/10/20
+  linkedin-bots message -r -m reconnect.txt --date-limit 2024/10/20
       # click an old conversation first, then walk upward (older→newer),
       # stopping once a conversation is newer than the date limit
   linkedin-bots message --last-message-regex "You:.*"
@@ -53,7 +53,7 @@ def add_parser(sub):
         help="Scroll down the list, click the first conversation dated on or "
              "before this date, and start sending from there (inclusive)")
     mp.add_argument(
-        "-i", "--inv", action="store_true",
+        "-r", "--reverse", action="store_true",
         help="Walk the list upward (older→newer) instead of downward. "
              "Flips --date-limit to mean 'stop once newer than this date'")
     mp.add_argument(
@@ -117,7 +117,7 @@ def run(args):
     logger.info("=" * 60)
     logger.info("LinkedIn Message Bot")
     logger.info(f"  Message    : {message_file}")
-    logger.info(f"  Direction  : {'up (older→newer)' if args.inv else 'down (newer→older)'}")
+    logger.info(f"  Direction  : {'up (older→newer)' if args.reverse else 'down (newer→older)'}")
     logger.info(f"  Date limit : {date_limit or 'none (full list)'}")
     logger.info(f"  Start date : {start_date or 'none (top or clicked card)'}")
     logger.info(f"  Dry run    : {'yes' if args.dry_run else 'no'}")
@@ -150,11 +150,11 @@ def run(args):
         fallback=re.compile(args.last_message_regex) if args.last_message_regex else None)
     settings = FollowUpSettings(date_limit=date_limit, start_date=start_date,
                                 dry_run=args.dry_run, max_messages=args.max_messages,
-                                upward=args.inv)
+                                upward=args.reverse)
 
     driver, _ = create_driver(attach_to_existing=True)
     pause = HumanPause()
-    use_case = SendFollowUps(SeleniumConversationList(driver, upward=args.inv),
+    use_case = SendFollowUps(SeleniumConversationList(driver, upward=args.reverse),
                              SeleniumThreadPage(driver, pause), JsonSentHistory(),
                              pause, routing, settings)
     prevent_sleep()

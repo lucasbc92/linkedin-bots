@@ -86,7 +86,7 @@ class SendFollowUps:
             logger.info(f"Starting from the active (clicked) conversation, "
                         f"walking {'up' if s.upward else 'down'}.")
         elif s.upward:
-            logger.info("No active conversation — starting from the bottom (inv).")
+            logger.info("No active conversation — starting from the bottom (reverse).")
         else:
             logger.info("No active conversation — starting from the top.")
 

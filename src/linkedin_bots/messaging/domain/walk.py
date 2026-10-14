@@ -57,7 +57,7 @@ def assess(card, *, history, handled, routing, date_limit=None, upward=False, to
     if date_limit and card_date:
         if upward and card_date > date_limit:
             return Stop(f"Card for {name or '(unknown)'} dated {card_date} "
-                        f"is after date limit {date_limit}. Stopping (inv).")
+                        f"is after date limit {date_limit}. Stopping (reverse).")
         if not upward and card_date < date_limit:
             return Stop(f"Card for {name or '(unknown)'} dated {card_date} "
                         f"is before date limit {date_limit}. Stopping.")

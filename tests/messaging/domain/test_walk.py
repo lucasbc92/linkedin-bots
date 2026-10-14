@@ -70,7 +70,7 @@ def test_walking_down_stops_at_a_card_older_than_the_limit():
 def test_walking_up_stops_at_a_card_newer_than_the_limit():
     verdict = _assess(_card(stamp="Oct 5"), date_limit=date(2026, 9, 15), upward=True)
     assert verdict == Stop("Card for Ana Silva dated 2026-10-05 is after date limit "
-                           "2026-09-15. Stopping (inv).")
+                           "2026-09-15. Stopping (reverse).")
 
 
 def test_an_undated_card_never_stops_the_walk():

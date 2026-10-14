@@ -193,3 +193,11 @@ def test_java_devs_pick_their_own_default_template(monkeypatch, argv, template):
     with pytest.raises(SystemExit):
         cli.main(argv)
     assert asked == [template]
+
+
+def test_message_walks_in_reverse_with_the_same_flag_as_connect():
+    parser = cli.build_parser()
+    assert not parser.parse_args(["message"]).reverse
+    assert parser.parse_args(["message", "-r"]).reverse
+    assert parser.parse_args(["message", "--reverse"]).reverse
+    assert parser.parse_args(["connect", "-r"]).reverse

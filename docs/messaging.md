@@ -19,18 +19,18 @@ Starting from an open **Messaging** tab, the bot:
 2. Determines where to start (see [Where it starts](#where-it-starts) below).
 3. Walks the conversation list **strictly in one direction, one card at a
    time** — downward (newer→older) by default, or upward (older→newer) with
-   `-i`/`--inv`. The next contact is always the adjacent card in that
+   `-r`/`--reverse`. The next contact is always the adjacent card in that
    direction, never a rescan from the top. For each card it:
    - skips **Sponsored**, **InMail**, and **LinkedIn Offer** cards (identified
      by their pill label);
    - skips anyone already recorded in the send history;
    - optionally stops once a conversation crosses `--date-limit` (older than
-     it going down, newer than it going up with `-i`);
+     it going down, newer than it going up with `-r`);
    - opens the thread, types a personalized message into the compose box, and
      sends it.
 4. Lazy-loads more conversations (by focusing the last card) until it reaches
    the bottom of the list (or hits `--max`). No lazy-loading is needed walking
-   upward with `-i` — every card above the start point is already loaded.
+   upward with `-r` — every card above the start point is already loaded.
 
 Sending a message makes that conversation jump to the top of the list, so the
 bot captures the *next* card **before** sending. That is what keeps the walk
@@ -69,7 +69,7 @@ linkedin-bots message --date-limit 2025/12/31  # stop at conversations older tha
 linkedin-bots message --start-date 2025/07/30  # scroll down to this date and start there
 linkedin-bots message -m reconnect.txt --max 5 --dry-run
 linkedin-bots message -m dev_message.txt --max 10   # follow up with developers
-linkedin-bots message -i -m reconnect_english.txt --date-limit 2024/10/20
+linkedin-bots message -r -m reconnect_english.txt --date-limit 2024/10/20
     # click an old conversation first, then walk upward (older→newer),
     # stopping once a conversation is newer than the date limit
 linkedin-bots message --last-message-regex ".*há 7.*" \
@@ -82,9 +82,9 @@ linkedin-bots message --last-message-regex ".*há 7.*" \
 | Flag | Default | Meaning |
 |------|---------|---------|
 | `-m`, `--message FILE` | `message.txt` | Template file. A bare filename is looked up in your own templates folder, then in `src/linkedin_bots/messaging/templates/`; a path is used as-is. A file that doesn't exist stops the run. |
-| `--date-limit YYYY/MM/DD` | none | Stop when a conversation is older than this date (or, with `-i`/`--inv`, newer than this date). |
+| `--date-limit YYYY/MM/DD` | none | Stop when a conversation is older than this date (or, with `-r`/`--reverse`, newer than this date). |
 | `--start-date YYYY/MM/DD` | none | Scroll down the list (lazy-loading as needed), click the **first conversation dated on or before** this date, and start sending from there, inclusive. If no such conversation exists, the run ends without sending. |
-| `-i`, `--inv` | off | Walk the list **upward** (older → newer) instead of downward. Also flips `--date-limit` to mean "stop once a conversation is newer than this date." Useful for working through very old contacts from the bottom of the inbox up. |
+| `-r`, `--reverse` | off | Walk the list **upward** (older → newer) instead of downward. Also flips `--date-limit` to mean "stop once a conversation is newer than this date." Useful for working through very old contacts from the bottom of the inbox up. |
 | `--dry-run` | off | Log who would be messaged and the first line of the text, without opening threads or sending anything. |
 | `--max N` | unlimited | Stop after sending `N` messages (a blast-radius cap). |
 | `--last-message-regex REGEX` | none | Only message conversations whose last-message preview matches `REGEX`; they get the `-m` template. See [Routing by last message](#routing-by-last-message). |
@@ -134,18 +134,18 @@ used.
 ### Where it starts
 
 - **No conversation open** → starts from the top of the list (most recent), or
-  the bottom (oldest) when `-i`/`--inv` is given.
+  the bottom (oldest) when `-r`/`--reverse` is given.
 - **A conversation already open** (you clicked one before launching) → starts
   **from that conversation, inclusive**, and continues in the walk direction
-  (downward by default, upward with `-i`). Every card on the other side of the
+  (downward by default, upward with `-r`). Every card on the other side of the
   active one is skipped. This lets you resume from a known point, e.g. click
-  the oldest conversation in your inbox and run with `-i` to work upward
+  the oldest conversation in your inbox and run with `-r` to work upward
   through old contacts.
 - **`--start-date` given** → the bot scrolls the list itself (focusing the last
   card to trigger lazy-loading, since plain scrolling doesn't reliably load
   more) until it finds the first conversation dated on or before that date,
   clicks it, and starts from there — same as if you had clicked it manually.
-  This works the same way regardless of `-i`, since it only affects where the
+  This works the same way regardless of `-r`, since it only affects where the
   walk *starts*, not which direction it goes afterward.
 
 Every contact a message is confirmed sent to is also recorded in
@@ -231,18 +231,18 @@ A partir de uma aba aberta do **Messaging**, o bot:
 2. Decide por onde começar (veja [Onde ele começa](#onde-ele-começa) abaixo).
 3. Percorre a lista de conversas **estritamente numa direção, um card por
    vez** — para baixo (mais nova→mais antiga) por padrão, ou para cima (mais
-   antiga→mais nova) com `-i`/`--inv`. O próximo contato é sempre o card
+   antiga→mais nova) com `-r`/`--reverse`. O próximo contato é sempre o card
    vizinho naquela direção, nunca uma nova varredura a partir do topo. Para
    cada card, ele:
    - pula cards **Sponsored**, **InMail** e **LinkedIn Offer** (identificados
      pela etiqueta, o "pill");
    - pula quem já está registrado no histórico de envios;
    - opcionalmente para quando uma conversa ultrapassa `--date-limit` (mais
-     antiga que ele indo para baixo, mais nova indo para cima com `-i`);
+     antiga que ele indo para baixo, mais nova indo para cima com `-r`);
    - abre a conversa, digita uma mensagem personalizada na caixa de texto e a
      envia.
 4. Carrega mais conversas (focando o último card) até chegar ao fim da lista
-   (ou atingir `--max`). Indo para cima com `-i` não é preciso carregar mais —
+   (ou atingir `--max`). Indo para cima com `-r` não é preciso carregar mais —
    todo card acima do ponto de partida já está carregado.
 
 Enviar uma mensagem faz aquela conversa pular para o topo da lista, então o bot
@@ -284,7 +284,7 @@ linkedin-bots message --date-limit 2025/12/31  # para nas conversas mais antigas
 linkedin-bots message --start-date 2025/07/30  # rola até esta data e começa por ali
 linkedin-bots message -m reconnect.txt --max 5 --dry-run
 linkedin-bots message -m dev_message.txt --max 10   # acompanhamento com devs
-linkedin-bots message -i -m reconnect_english.txt --date-limit 2024/10/20
+linkedin-bots message -r -m reconnect_english.txt --date-limit 2024/10/20
     # clique antes numa conversa antiga, depois caminhe para cima (mais antiga→mais nova),
     # parando quando uma conversa for mais nova que a data limite
 linkedin-bots message --last-message-regex ".*há 7.*" \
@@ -297,9 +297,9 @@ linkedin-bots message --last-message-regex ".*há 7.*" \
 | Flag | Padrão | Significado |
 |------|--------|-------------|
 | `-m`, `--message ARQUIVO` | `message.txt` | Arquivo de template. Um nome de arquivo sozinho é procurado na sua pasta de templates e depois em `src/linkedin_bots/messaging/templates/`; um caminho é usado como está. Um arquivo que não existe interrompe a execução. |
-| `--date-limit AAAA/MM/DD` | nenhum | Para quando uma conversa for mais antiga que esta data (ou, com `-i`/`--inv`, mais nova que esta data). |
+| `--date-limit AAAA/MM/DD` | nenhum | Para quando uma conversa for mais antiga que esta data (ou, com `-r`/`--reverse`, mais nova que esta data). |
 | `--start-date AAAA/MM/DD` | nenhum | Rola a lista para baixo (carregando mais conforme preciso), clica na **primeira conversa com data igual ou anterior** a esta e começa a enviar a partir dela, inclusive. Se não existir conversa assim, a execução termina sem enviar. |
-| `-i`, `--inv` | desligado | Percorre a lista **para cima** (mais antiga → mais nova) em vez de para baixo. Também inverte `--date-limit`, que passa a significar "parar quando uma conversa for mais nova que esta data". Útil para trabalhar contatos muito antigos, do fim da caixa de entrada para cima. |
+| `-r`, `--reverse` | desligado | Percorre a lista **para cima** (mais antiga → mais nova) em vez de para baixo. Também inverte `--date-limit`, que passa a significar "parar quando uma conversa for mais nova que esta data". Útil para trabalhar contatos muito antigos, do fim da caixa de entrada para cima. |
 | `--dry-run` | desligado | Registra no log quem receberia mensagem e a primeira linha do texto, sem abrir conversas nem enviar nada. |
 | `--max N` | ilimitado | Para depois de enviar `N` mensagens (um teto para limitar estragos). |
 | `--last-message-regex REGEX` | nenhum | Só manda mensagem para conversas cuja prévia da última mensagem bate com `REGEX`; elas recebem o template de `-m`. Veja [Roteamento pela última mensagem](#roteamento-pela-última-mensagem). |
@@ -351,18 +351,18 @@ contato com o template que seria usado.
 ### Onde ele começa
 
 - **Nenhuma conversa aberta** → começa do topo da lista (a mais recente), ou do
-  fim (a mais antiga) quando `-i`/`--inv` é passado.
+  fim (a mais antiga) quando `-r`/`--reverse` é passado.
 - **Uma conversa já aberta** (você clicou numa antes de iniciar) → começa
   **por essa conversa, inclusive**, e segue na direção da caminhada (para baixo
-  por padrão, para cima com `-i`). Todo card do outro lado da conversa ativa é
+  por padrão, para cima com `-r`). Todo card do outro lado da conversa ativa é
   pulado. Isso permite retomar de um ponto conhecido, por exemplo: clicar na
-  conversa mais antiga da caixa de entrada e rodar com `-i` para subir pelos
+  conversa mais antiga da caixa de entrada e rodar com `-r` para subir pelos
   contatos antigos.
 - **`--start-date` passado** → o próprio bot rola a lista (focando o último
   card para disparar o carregamento, já que rolar simplesmente não carrega mais
   de forma confiável) até encontrar a primeira conversa com data igual ou
   anterior àquela, clica nela e começa dali — igual a ter clicado nela à mão.
-  Funciona do mesmo jeito com ou sem `-i`, porque só afeta onde a caminhada
+  Funciona do mesmo jeito com ou sem `-r`, porque só afeta onde a caminhada
   *começa*, não a direção que ela segue depois.
 
 Todo contato para quem uma mensagem foi enviada com confirmação também é
