@@ -43,7 +43,7 @@ direct messages have **no 300-character cap**, so templates are never truncated.
 See [Templates](../README.md#templates) in the root README for the format.
 
 The shipped templates are generic: one follow-up and one re-approach per
-language, for recruiters and for developers. Your own templates win over them by name (see
+language, for recruiters and for developers, plus a hired notice for recruiters. Your own templates win over them by name (see
 [Templates](../README.md#templates)).
 
 | Template | Language | Use |
@@ -52,6 +52,8 @@ language, for recruiters and for developers. Your own templates win over them by
 | `message_english.txt` | English | follow-up |
 | `reconnect.txt` | Portuguese | re-approaching an old contact |
 | `reconnect_english.txt` | English | re-approaching |
+| `message_hired.txt` | Portuguese | telling recruiters you've been hired — no job-search pitch |
+| `message_hired_english.txt` | English | telling recruiters you've been hired |
 | `dev_message.txt` | Portuguese | follow-up for a developer met through `connect --java-devs` |
 | `dev_message_english.txt` | English | follow-up for a developer |
 | `dev_reconnect.txt` | Portuguese | re-approaching an old developer contact |
@@ -256,7 +258,7 @@ nunca são cortados. Veja [Templates](../README.md#templates-1) no README
 principal para o formato.
 
 Os templates distribuídos são genéricos: um de acompanhamento e um de
-reabordagem por idioma, para recrutadores e para devs. Seus próprios templates têm prioridade sobre eles pelo
+reabordagem por idioma, para recrutadores e para devs, mais um aviso de contratação para recrutadores. Seus próprios templates têm prioridade sobre eles pelo
 nome (veja [Templates](../README.md#templates-1)).
 
 | Template | Idioma | Uso |
@@ -265,6 +267,8 @@ nome (veja [Templates](../README.md#templates-1)).
 | `message_english.txt` | inglês | acompanhamento |
 | `reconnect.txt` | português | reabordar um contato antigo |
 | `reconnect_english.txt` | inglês | reabordagem |
+| `message_hired.txt` | português | avisar recrutadores que você foi contratado — sem pedir vaga |
+| `message_hired_english.txt` | inglês | avisar recrutadores que você foi contratado |
 | `dev_message.txt` | português | acompanhamento para um dev conectado via `connect --java-devs` |
 | `dev_message_english.txt` | inglês | acompanhamento para um dev |
 | `dev_reconnect.txt` | português | reabordar um contato dev antigo |

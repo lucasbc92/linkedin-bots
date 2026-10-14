@@ -7,7 +7,7 @@ SHIPPED = {
     "connecting": {"message.txt", "message_english.txt", "dev_message.txt", "dev_message_english.txt"},
     "messaging": {"message.txt", "message_english.txt", "reconnect.txt", "reconnect_english.txt",
                   "dev_message.txt", "dev_message_english.txt", "dev_reconnect.txt",
-                  "dev_reconnect_english.txt"},
+                  "dev_reconnect_english.txt", "message_hired.txt", "message_hired_english.txt"},
 }
 INVITE_LIMIT = 300
 NAME_ROOM = 40  # left for long names once {name} is filled in

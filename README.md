@@ -146,6 +146,8 @@ src/linkedin_bots/messaging/templates/    # used by `linkedin-bots message`
 ├── message_english.txt
 ├── reconnect.txt                         (re-approaching old contacts)
 ├── reconnect_english.txt
+├── message_hired.txt                     (telling recruiters you've been hired)
+├── message_hired_english.txt
 ├── dev_message.txt                       (follow-up with developers)
 ├── dev_message_english.txt
 ├── dev_reconnect.txt                     (re-approaching old developer contacts)
@@ -447,6 +449,8 @@ src/linkedin_bots/messaging/templates/    # usado por `linkedin-bots message`
 ├── message_english.txt
 ├── reconnect.txt                         (reabordar contatos antigos)
 ├── reconnect_english.txt
+├── message_hired.txt                     (avisar recrutadores da contratação)
+├── message_hired_english.txt
 ├── dev_message.txt                       (acompanhamento com devs)
 ├── dev_message_english.txt
 ├── dev_reconnect.txt                     (reabordar devs antigos)
