@@ -1,0 +1,4 @@
+Hello, {name}! How are you? 😊
+I'm a Java developer looking to connect with experienced Java devs to swap ideas on architecture, Spring, best practices and using AI in day-to-day work.
+Happy to connect!
+Kind regards,

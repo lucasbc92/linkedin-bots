@@ -137,13 +137,19 @@ edit wording without touching code.
 ```
 src/linkedin_bots/connecting/templates/   # used by `linkedin-bots connect`
 ├── message.txt                           (default, Portuguese)
-└── message_english.txt
+├── message_english.txt
+├── dev_message.txt                       (default with --java-devs)
+└── dev_message_english.txt
 
 src/linkedin_bots/messaging/templates/    # used by `linkedin-bots message`
 ├── message.txt                           (default, Portuguese)
 ├── message_english.txt
 ├── reconnect.txt                         (re-approaching old contacts)
-└── reconnect_english.txt
+├── reconnect_english.txt
+├── dev_message.txt                       (follow-up with developers)
+├── dev_message_english.txt
+├── dev_reconnect.txt                     (re-approaching old developer contacts)
+└── dev_reconnect_english.txt
 ```
 
 The shipped templates are generic. **Your own templates** go in your data
@@ -432,13 +438,19 @@ então você pode mudar o texto sem mexer no código.
 ```
 src/linkedin_bots/connecting/templates/   # usado por `linkedin-bots connect`
 ├── message.txt                           (padrão, português)
-└── message_english.txt
+├── message_english.txt
+├── dev_message.txt                       (padrão com --java-devs)
+└── dev_message_english.txt
 
 src/linkedin_bots/messaging/templates/    # usado por `linkedin-bots message`
 ├── message.txt                           (padrão, português)
 ├── message_english.txt
 ├── reconnect.txt                         (reabordar contatos antigos)
-└── reconnect_english.txt
+├── reconnect_english.txt
+├── dev_message.txt                       (acompanhamento com devs)
+├── dev_message_english.txt
+├── dev_reconnect.txt                     (reabordar devs antigos)
+└── dev_reconnect_english.txt
 ```
 
 Os templates distribuídos são genéricos. **Seus próprios templates** ficam na

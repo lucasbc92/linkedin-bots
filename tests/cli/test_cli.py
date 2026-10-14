@@ -173,3 +173,23 @@ def test_help_points_at_files_that_exist():
     assert named
     for path in named:
         assert (src / path).is_file(), path
+
+
+@pytest.mark.parametrize("argv,template", [
+    (["connect"], "message.txt"),
+    (["connect", "--java-devs"], "dev_message.txt"),
+    (["connect", "--java-devs", "-m", "dev_message_english.txt"], "dev_message_english.txt"),
+])
+def test_java_devs_pick_their_own_default_template(monkeypatch, argv, template):
+    from linkedin_bots.cli import connect
+
+    asked = []
+
+    def stop_at_the_template(name, *args):
+        asked.append(name)
+        raise SystemExit(0)
+
+    monkeypatch.setattr(connect, "require_template", stop_at_the_template)
+    with pytest.raises(SystemExit):
+        cli.main(argv)
+    assert asked == [template]

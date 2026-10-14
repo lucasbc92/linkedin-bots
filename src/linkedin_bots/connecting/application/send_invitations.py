@@ -11,6 +11,7 @@ from typing import Optional
 from linkedin_bots.connecting.application.ports import (ClickIntercepted, InviteLedger,
                                                         InviteModal, InviteStatus, LimitGuard,
                                                         Pause, ProfilePage, SearchResults)
+from linkedin_bots.connecting.domain.audiences import TECH_RECRUITERS, Audience
 from linkedin_bots.connecting.domain.labels import first_name_from_label, full_name_from_label
 from linkedin_bots.connecting.domain.page_rules import best_title, looks_stripped
 from linkedin_bots.connecting.domain.tech_recruiter import DEFAULT_MIN_SCORE
@@ -28,6 +29,7 @@ class InviteSettings:
     tech_only: bool = True
     min_title_score: float = DEFAULT_MIN_SCORE
     reverse: bool = False
+    audience: Audience = TECH_RECRUITERS
 
 
 class SendInvitations:
@@ -160,26 +162,28 @@ class SendInvitations:
                     logger.debug(f"No headline found on the card for {target_label}")
                     verdict = None
                 else:
-                    verdict = best_title(titles)
+                    verdict = best_title(titles, self.settings.audience.score)
                     logger.debug(f"Title for {target_label}: {verdict!r}")
                 if verdict is None:
                     logger.warning(
                         f"Could not read a headline for {target_label}. "
-                        f"Skipping (tech-recruiter filter is on).")
+                        f"Skipping ({self.settings.audience.label} filter is on).")
                     self.skipped += 1
                     self.non_tech_skipped += 1
                     continue
                 if verdict.score < self.settings.min_title_score:
                     logger.info(
-                        f"Skipping {name or target_label} — not a tech "
-                        f"recruiter: {verdict.title!r} "
+                        f"Skipping {name or target_label} — not a "
+                        f"{self.settings.audience.label}: {verdict.title!r} "
                         f"(score {verdict.score:.2f} < {self.settings.min_title_score:.2f}; "
                         f"{verdict.reason})")
                     self.skipped += 1
                     self.non_tech_skipped += 1
                     continue
                 logger.info(
-                    f"Tech recruiter confirmed for {name or target_label}: "
+                    f"{self.settings.audience.label[0].upper()}"
+                    f"{self.settings.audience.label[1:]} confirmed for "
+                    f"{name or target_label}: "
                     f"{verdict.title!r} (score {verdict.score:.2f}; {verdict.reason})")
 
             if kind == "follow":
@@ -344,7 +348,7 @@ class SendInvitations:
                if self.profile_invites_sent else "")
             + f" | failed: {self.failed}"
             + f" | skipped: {self.skipped}"
-            + (f" (of which {self.non_tech_skipped} not tech recruiters)"
+            + (f" (of which {self.non_tech_skipped} not {self.settings.audience.label}s)"
                if self.non_tech_skipped else ""))
 
         week = current_week_start()

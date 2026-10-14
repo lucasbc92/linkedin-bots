@@ -7,6 +7,7 @@ from linkedin_bots.connecting.application.ports import (ClickIntercepted, Invite
                                                         InviteStatus)
 from linkedin_bots.connecting.application.send_invitations import (InviteSettings,
                                                                    SendInvitations)
+from linkedin_bots.connecting.domain.audiences import JAVA_DEVS
 from linkedin_bots.shared.domain.messages import MessageTemplates
 
 
@@ -189,6 +190,18 @@ def test_any_title_invites_everyone():
     results = Results([("Invite Ana Lima to connect", "Sales Recruiter")])
     _run(results, tech_only=False)
     assert results.clicked == ["Invite Ana Lima to connect"]
+
+
+def test_the_java_dev_audience_invites_senior_java_devs_only(caplog):
+    results = Results([("Invite Ana Lima to connect", "Desenvolvedora Java Sênior"),
+                       ("Invite Caio Reis to connect", TECH),
+                       ("Invite Davi Melo to connect", "Desenvolvedor Java Júnior")])
+    with caplog.at_level(logging.INFO, logger="linkedin_bot"):
+        use_case = _run(results, audience=JAVA_DEVS)
+    assert results.clicked == ["Invite Ana Lima to connect"]
+    assert use_case.non_tech_skipped == 2
+    assert "Senior Java dev confirmed for Ana" in caplog.text
+    assert "(of which 2 not senior Java devs)" in caplog.text
 
 
 def test_a_sent_invite_is_recorded_under_the_full_name():

@@ -21,7 +21,9 @@ Starting from an open **people-search results** tab
 2. On each results page, scrolls to lazy-load every card, then walks the
    people on it top-to-bottom.
 3. Reads each person's headline off their card and skips anyone who is not a
-   **tech** recruiter — see [Tech-recruiter filter](#tech-recruiter-filter).
+   **tech** recruiter — see [Tech-recruiter filter](#tech-recruiter-filter) — or,
+   with `--java-devs`, not an experienced Java developer — see
+   [Java-developer filter](#java-developer-filter).
    Skipped cards are never clicked, so they cost nothing against your weekly
    invitation quota.
 4. Opens the invite modal for each remaining person — from the **"Invite … to
@@ -50,6 +52,7 @@ linkedin-bots connect -r                    # page backwards (Previous instead o
 linkedin-bots connect --max 80              # stop after 80 invitations sent
 linkedin-bots connect --any-title           # invite every recruiter, not just tech
 linkedin-bots connect --title-score 0.9     # stricter tech-recruiter filter
+linkedin-bots connect --java-devs           # experienced Java devs instead of recruiters
 linkedin-bots connect -f                    # fast: minimal pauses between invites
 ```
 
@@ -57,13 +60,14 @@ linkedin-bots connect -f                    # fast: minimal pauses between invit
 
 | Flag | Default | Meaning |
 |------|---------|---------|
-| `-m`, `--message FILE` | `message.txt` | Template file. A bare filename is looked up in your own templates folder (see [Templates](../README.md#templates)), then in `src/linkedin_bots/connecting/templates/`; a path is used as-is. A file that doesn't exist stops the run (unless `-n` makes it moot). |
+| `-m`, `--message FILE` | `message.txt` (`dev_message.txt` with `--java-devs`) | Template file. A bare filename is looked up in your own templates folder (see [Templates](../README.md#templates)), then in `src/linkedin_bots/connecting/templates/`; a path is used as-is. A file that doesn't exist stops the run (unless `-n` makes it moot). |
 | `-n`, `--no-message` | off | Send invitations **without** a note (clicks "Send without a note"). |
 | `-r`, `--reverse` | off | Navigate results in reverse (click **Previous** instead of **Next**). |
 | `-y`, `--yes` | off | Auto-continue past the "close to the weekly invitation limit" warning instead of prompting. |
 | `--max N` | unlimited | Stop after sending `N` invitations (blast-radius limit, independent of LinkedIn's own weekly cap). |
-| `--any-title` | off | Invite **every** recruiter, skipping the tech-recruiter headline filter. |
-| `--title-score S` | `0.80` | Minimum tech-recruiter similarity score (`0.0`–`1.0`). Raise it to be stricter, lower it to be more permissive. |
+| `--java-devs` | off | Invite experienced Java developers instead of tech recruiters — see [Java-developer filter](#java-developer-filter). |
+| `--any-title` | off | Invite **everyone** in the results, skipping the headline filter. |
+| `--title-score S` | `0.80` | Minimum headline similarity score (`0.0`–`1.0`). Raise it to be stricter, lower it to be more permissive. |
 | `-f`, `--fast` | off | Shrink the randomized pauses to a minimum — see [Pacing](#pacing). |
 | `-l`, `--log-level` | `INFO` | `DEBUG`, `INFO`, `WARN`, or `ERROR`. |
 
@@ -177,6 +181,43 @@ python -m pytest
 ```
 
 To turn the filter off for one run, pass `--any-title`.
+
+### Java-developer filter
+
+`--java-devs` points the same walk at **experienced Java developers** instead of
+recruiters: run it from a people-search for, say, "java" or "desenvolvedor
+java", and only senior or specialist Java people are invited. The default
+template becomes `dev_message.txt` (pass `-m` for another), and the headline
+is scored with [`connecting/domain/java_dev.py`](../src/linkedin_bots/connecting/domain/java_dev.py), using the same
+fuzzy, word-aligned matching and the same three routes, with a seniority word
+(`senior`, `sr`, `especialista`, `specialist`, `expert`, `staff`, `principal`,
+`tech lead`, `arquiteto`, …) in place of the recruiting one and a Java word
+(`java`, `jvm`, `spring`, `spring boot`, `jakarta ee`, `quarkus`, …) in place of
+the technology one:
+
+| Route | Example | Score |
+|-------|---------|-------|
+| **Composite** | `Desenvolvedor Java Sênior`, `Java Specialist \| AWS` | 1.00 |
+| **Co-occurrence** | `Engenheiro de Software Sênior em Java` | 0.90 |
+| **Separate segments** | `Senior Software Engineer \| Java \| Spring` | 0.85 |
+
+`Júnior`, `Pleno` or `JavaScript` alone never match. A headline naming a
+recruiter, a student, an intern or a trainee is **excluded** outright — in
+`Tech Recruiter | Vagas Java Sênior` the seniority belongs to the vacancy, not
+the person. The short seniority words that double as ordinary ones (`sr`,
+`staff`, `principal`) only count right next to the Java word.
+
+`--any-title` and `--title-score` work the same way in this mode, and the log
+and summary name the audience:
+
+```
+Skipping Davi — not a senior Java dev: 'Desenvolvedor Java Júnior' (score 0.00 < 0.80; ...)
+Session summary — sent: 30 | failed: 0 | skipped: 14 (of which 12 not senior Java devs)
+```
+
+The word lists (`COMPOSITE_TERMS`, `SENIORITY_TERMS`, `JAVA_TERMS`,
+`EXCLUDED_TERMS`) sit at the top of `java_dev.py`. The Windows executable ships
+no `dev_message.txt`: put your own in your templates folder, or pass `-m`.
 
 ### Connection-request limits
 
@@ -298,7 +339,8 @@ A partir de uma aba aberta de **resultados da busca de pessoas**
    percorre as pessoas de cima para baixo.
 3. Lê o título (headline) de cada pessoa no próprio card e pula quem não é
    recrutador de **tecnologia** — veja
-   [Filtro de recrutador tech](#filtro-de-recrutador-tech). Cards pulados
+   [Filtro de recrutador tech](#filtro-de-recrutador-tech) — ou, com `--java-devs`,
+   quem não é dev Java experiente — veja [Filtro de dev Java](#filtro-de-dev-java). Cards pulados
    nunca são clicados, então não gastam nada da sua cota semanal de convites.
 4. Abre o modal de convite para cada pessoa restante — pelo controle
    **"Invite … to connect"** do card ou, quando o card só oferece **Follow**,
@@ -326,6 +368,7 @@ linkedin-bots connect -r                    # navega para trás (Previous em vez
 linkedin-bots connect --max 80              # para depois de 80 convites enviados
 linkedin-bots connect --any-title           # convida todo recrutador, não só os de tech
 linkedin-bots connect --title-score 0.9     # filtro de recrutador tech mais rígido
+linkedin-bots connect --java-devs           # devs Java experientes em vez de recrutadores
 linkedin-bots connect -f                    # rápido: pausas mínimas entre convites
 ```
 
@@ -333,13 +376,14 @@ linkedin-bots connect -f                    # rápido: pausas mínimas entre con
 
 | Flag | Padrão | Significado |
 |------|--------|-------------|
-| `-m`, `--message ARQUIVO` | `message.txt` | Arquivo de template. Um nome de arquivo sozinho é procurado na sua pasta de templates (veja [Templates](../README.md#templates-1)) e depois em `src/linkedin_bots/connecting/templates/`; um caminho é usado como está. Um arquivo que não existe interrompe a execução (a menos que `-n` o torne irrelevante). |
+| `-m`, `--message ARQUIVO` | `message.txt` (`dev_message.txt` com `--java-devs`) | Arquivo de template. Um nome de arquivo sozinho é procurado na sua pasta de templates (veja [Templates](../README.md#templates-1)) e depois em `src/linkedin_bots/connecting/templates/`; um caminho é usado como está. Um arquivo que não existe interrompe a execução (a menos que `-n` o torne irrelevante). |
 | `-n`, `--no-message` | desligado | Envia convites **sem** nota (clica em "Send without a note"). |
 | `-r`, `--reverse` | desligado | Navega pelos resultados ao contrário (clica em **Previous** em vez de **Next**). |
 | `-y`, `--yes` | desligado | Segue automaticamente além do aviso "close to the weekly invitation limit", em vez de perguntar. |
 | `--max N` | ilimitado | Para depois de enviar `N` convites (limite de estrago, independente do teto semanal do próprio LinkedIn). |
-| `--any-title` | desligado | Convida **todo** recrutador, pulando o filtro de título de recrutador tech. |
-| `--title-score S` | `0.80` | Pontuação mínima de similaridade de recrutador tech (`0.0`–`1.0`). Aumente para ser mais rígido, diminua para ser mais permissivo. |
+| `--java-devs` | desligado | Convida devs Java experientes em vez de recrutadores tech — veja [Filtro de dev Java](#filtro-de-dev-java). |
+| `--any-title` | desligado | Convida **todo mundo** nos resultados, pulando o filtro de título. |
+| `--title-score S` | `0.80` | Pontuação mínima de similaridade do título (`0.0`–`1.0`). Aumente para ser mais rígido, diminua para ser mais permissivo. |
 | `-f`, `--fast` | desligado | Reduz as pausas aleatórias ao mínimo — veja [Ritmo](#ritmo). |
 | `-l`, `--log-level` | `INFO` | `DEBUG`, `INFO`, `WARN` ou `ERROR`. |
 
@@ -460,6 +504,43 @@ python -m pytest
 ```
 
 Para desligar o filtro numa execução, passe `--any-title`.
+
+### Filtro de dev Java
+
+`--java-devs` aponta a mesma caminhada para **devs Java experientes** em vez de
+recrutadores: rode a partir de uma busca de pessoas por, digamos, "java" ou
+"desenvolvedor java", e só quem é sênior ou especialista em Java é convidado. O
+template padrão passa a ser `dev_message.txt` (passe `-m` para outro), e o
+título é pontuado com [`connecting/domain/java_dev.py`](../src/linkedin_bots/connecting/domain/java_dev.py), com a mesma
+comparação aproximada e alinhada por palavra e os mesmos três caminhos, com uma
+palavra de senioridade (`senior`, `sr`, `especialista`, `specialist`, `expert`,
+`staff`, `principal`, `tech lead`, `arquiteto`, …) no lugar da de recrutamento e
+uma palavra de Java (`java`, `jvm`, `spring`, `spring boot`, `jakarta ee`,
+`quarkus`, …) no lugar da de tecnologia:
+
+| Caminho | Exemplo | Pontuação |
+|---------|---------|-----------|
+| **Composto** | `Desenvolvedor Java Sênior`, `Java Specialist \| AWS` | 1.00 |
+| **Coocorrência** | `Engenheiro de Software Sênior em Java` | 0.90 |
+| **Segmentos separados** | `Senior Software Engineer \| Java \| Spring` | 0.85 |
+
+`Júnior`, `Pleno` ou `JavaScript` sozinhos nunca casam. Um título que cita
+recrutador, estudante, estagiário ou trainee é **excluído** direto — em
+`Tech Recruiter | Vagas Java Sênior` a senioridade é da vaga, não da pessoa. As
+palavras curtas de senioridade que também são palavras comuns (`sr`, `staff`,
+`principal`) só contam coladas na palavra de Java.
+
+`--any-title` e `--title-score` funcionam igual neste modo, e o log e o resumo
+dizem qual é o público:
+
+```
+Skipping Davi — not a senior Java dev: 'Desenvolvedor Java Júnior' (score 0.00 < 0.80; ...)
+Session summary — sent: 30 | failed: 0 | skipped: 14 (of which 12 not senior Java devs)
+```
+
+As listas de palavras (`COMPOSITE_TERMS`, `SENIORITY_TERMS`, `JAVA_TERMS`,
+`EXCLUDED_TERMS`) ficam no topo de `java_dev.py`. O executável do Windows não
+traz `dev_message.txt`: coloque o seu na sua pasta de templates ou passe `-m`.
 
 ### Limites de convites de conexão
 

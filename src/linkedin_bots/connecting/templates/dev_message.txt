@@ -1,0 +1,4 @@
+Olá, {name}! Tudo bem? 😊
+Sou dev Java e quero me conectar com devs Java experientes para trocar ideias sobre arquitetura, Spring, boas práticas e o uso de IA no dia a dia.
+Bora conectar?
+Um abraço,

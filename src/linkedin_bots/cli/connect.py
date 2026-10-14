@@ -3,6 +3,7 @@ import argparse
 
 from linkedin_bots.cli._common import (TemplateCompleter, add_log_level,
                                        require_template, start_logging)
+from linkedin_bots.connecting.domain.audiences import JAVA_DEVS, TECH_RECRUITERS
 from linkedin_bots.connecting.domain.tech_recruiter import DEFAULT_MIN_SCORE
 from linkedin_bots.shared.infrastructure.templates import resolve_template
 
@@ -17,9 +18,13 @@ examples:
   linkedin-bots connect --any-title                # invite every recruiter, not just tech
   linkedin-bots connect --title-score 0.9          # stricter tech-recruiter filter
   linkedin-bots connect -f                         # fast: minimal pauses between invites
+  linkedin-bots connect --java-devs                # senior Java devs, dev_message.txt
+  linkedin-bots connect --java-devs -m dev_message_english.txt
 
 by default only headlines that read as a *tech* recruiter are invited
-(scored by linkedin_bots/connecting/domain/tech_recruiter.py); templates: your
+(scored by linkedin_bots/connecting/domain/tech_recruiter.py); with --java-devs,
+only experienced Java developers (linkedin_bots/connecting/domain/java_dev.py)
+and the default template is dev_message.txt; templates: your
 own in <data home>/connecting/templates/ win over the shipped ones in
 src/linkedin_bots/connecting/templates/
 """
@@ -38,8 +43,9 @@ def add_parser(sub):
         "-y", "--yes", action="store_true",
         help="Auto-continue past the weekly close-to-limit warning")
     m_connect = cp.add_argument(
-        "-m", "--message", default="message.txt", metavar="FILE",
-        help="Template file in the connecting templates  (default: message.txt)")
+        "-m", "--message", metavar="FILE",
+        help="Template file in the connecting templates  (default: message.txt, "
+             "or dev_message.txt with --java-devs)")
     m_connect.completer = TemplateCompleter("connecting")
     cp.add_argument(
         "-r", "--reverse", action="store_true",
@@ -51,11 +57,15 @@ def add_parser(sub):
         "--max", dest="max_invites", type=int, metavar="N",
         help="Stop after sending N invitations (blast-radius limit)")
     cp.add_argument(
+        "--java-devs", action="store_true",
+        help="Invite experienced (senior/specialist) Java developers instead of "
+             "tech recruiters")
+    cp.add_argument(
         "--any-title", action="store_true",
-        help="Invite every recruiter, skipping the tech-recruiter headline filter")
+        help="Invite everyone in the results, skipping the headline filter")
     cp.add_argument(
         "--title-score", type=float, default=DEFAULT_MIN_SCORE, metavar="S",
-        help=f"Minimum tech-recruiter similarity score, 0.0-1.0 "
+        help=f"Minimum headline similarity score, 0.0-1.0 "
              f"(default: {DEFAULT_MIN_SCORE})")
     cp.add_argument(
         "-f", "--fast", action="store_true",
@@ -68,9 +78,11 @@ def add_parser(sub):
 def run(args):
     logger, log_path = start_logging("connecting", args.log_level)
 
-    message_file = resolve_template(args.message, "connecting")
+    audience = JAVA_DEVS if args.java_devs else TECH_RECRUITERS
+    message = args.message or ("dev_message.txt" if args.java_devs else "message.txt")
+    message_file = resolve_template(message, "connecting")
     if not args.no_message:
-        message_file = require_template(args.message, "connecting",
+        message_file = require_template(message, "connecting",
                                         "-m/--message", logger)
 
     logger.info("=" * 60)
@@ -81,7 +93,7 @@ def run(args):
     logger.info(f"  Navigation : {'reverse (Previous)' if args.reverse else 'forward (Next)'}")
     logger.info(f"  Auto-cont  : {'on (-y)' if args.yes else 'off'}")
     logger.info(f"  Max invites: {args.max_invites or 'unlimited'}")
-    logger.info(f"  Titles     : {'any recruiter (--any-title)' if args.any_title else f'tech recruiters only (score >= {args.title_score:.2f})'}")
+    logger.info(f"  Titles     : {'anyone (--any-title)' if args.any_title else f'{audience.label}s only (score >= {args.title_score:.2f})'}")
     logger.info(f"  Pacing     : {'fast (-f)' if args.fast else 'humanized'}")
     logger.info(f"  Log level  : {args.log_level}")
     logger.info("=" * 60)
@@ -112,7 +124,7 @@ def run(args):
         guard, JsonlInviteLedger(), pause, templates,
         InviteSettings(no_message=args.no_message, max_invites=args.max_invites,
                        tech_only=not args.any_title, min_title_score=args.title_score,
-                       reverse=args.reverse))
+                       reverse=args.reverse, audience=audience))
     prevent_sleep()
     try:
         use_case.run(max_pages=100)

@@ -2,11 +2,11 @@
 from linkedin_bots.connecting.domain.tech_recruiter import score_title
 
 
-def best_title(titles):
-    """The best tech-recruiter verdict among a card's headline and snippet."""
+def best_title(titles, score=score_title):
+    """The best verdict among a card's headline and snippet, tech-recruiter by default."""
     if not titles:
         return None
-    return max((score_title(text) for text in titles), key=lambda verdict: verdict.score)
+    return max((score(text) for text in titles), key=lambda verdict: verdict.score)
 
 
 def looks_stripped(tally):

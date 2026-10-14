@@ -1,0 +1,9 @@
+Hi {name}, how are you?
+
+Thanks for accepting my connection request! 😊
+
+I'm a Java developer and I enjoy trading experiences with people who work with the stack every day: architecture, Spring, performance, testing and how each team is using AI in development.
+
+If you ever want to chat about any of that, feel free to reach out!
+
+Best regards

@@ -43,7 +43,7 @@ direct messages have **no 300-character cap**, so templates are never truncated.
 See [Templates](../README.md#templates) in the root README for the format.
 
 The shipped templates are generic: one follow-up and one re-approach per
-language. Your own templates win over them by name (see
+language, for recruiters and for developers. Your own templates win over them by name (see
 [Templates](../README.md#templates)).
 
 | Template | Language | Use |
@@ -52,6 +52,10 @@ language. Your own templates win over them by name (see
 | `message_english.txt` | English | follow-up |
 | `reconnect.txt` | Portuguese | re-approaching an old contact |
 | `reconnect_english.txt` | English | re-approaching |
+| `dev_message.txt` | Portuguese | follow-up for a developer met through `connect --java-devs` |
+| `dev_message_english.txt` | English | follow-up for a developer |
+| `dev_reconnect.txt` | Portuguese | re-approaching an old developer contact |
+| `dev_reconnect_english.txt` | English | re-approaching a developer |
 
 ### Usage
 
@@ -62,6 +66,7 @@ linkedin-bots message --max 10               # stop after 10 messages
 linkedin-bots message --date-limit 2025/12/31  # stop at conversations older than this
 linkedin-bots message --start-date 2025/07/30  # scroll down to this date and start there
 linkedin-bots message -m reconnect.txt --max 5 --dry-run
+linkedin-bots message -m dev_message.txt --max 10   # follow up with developers
 linkedin-bots message -i -m reconnect_english.txt --date-limit 2024/10/20
     # click an old conversation first, then walk upward (older→newer),
     # stopping once a conversation is newer than the date limit
@@ -251,7 +256,7 @@ nunca são cortados. Veja [Templates](../README.md#templates-1) no README
 principal para o formato.
 
 Os templates distribuídos são genéricos: um de acompanhamento e um de
-reabordagem por idioma. Seus próprios templates têm prioridade sobre eles pelo
+reabordagem por idioma, para recrutadores e para devs. Seus próprios templates têm prioridade sobre eles pelo
 nome (veja [Templates](../README.md#templates-1)).
 
 | Template | Idioma | Uso |
@@ -260,6 +265,10 @@ nome (veja [Templates](../README.md#templates-1)).
 | `message_english.txt` | inglês | acompanhamento |
 | `reconnect.txt` | português | reabordar um contato antigo |
 | `reconnect_english.txt` | inglês | reabordagem |
+| `dev_message.txt` | português | acompanhamento para um dev conectado via `connect --java-devs` |
+| `dev_message_english.txt` | inglês | acompanhamento para um dev |
+| `dev_reconnect.txt` | português | reabordar um contato dev antigo |
+| `dev_reconnect_english.txt` | inglês | reabordagem de um dev |
 
 ### Uso
 
@@ -270,6 +279,7 @@ linkedin-bots message --max 10               # para depois de 10 mensagens
 linkedin-bots message --date-limit 2025/12/31  # para nas conversas mais antigas que esta data
 linkedin-bots message --start-date 2025/07/30  # rola até esta data e começa por ali
 linkedin-bots message -m reconnect.txt --max 5 --dry-run
+linkedin-bots message -m dev_message.txt --max 10   # acompanhamento com devs
 linkedin-bots message -i -m reconnect_english.txt --date-limit 2024/10/20
     # clique antes numa conversa antiga, depois caminhe para cima (mais antiga→mais nova),
     # parando quando uma conversa for mais nova que a data limite
