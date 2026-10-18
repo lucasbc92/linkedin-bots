@@ -20,9 +20,9 @@ There is no penalty scale here: a headline naming a recruiter, a student or an
 intern is excluded outright, since "senior" and "java" in it describe the
 vacancy or the course, not the person.
 """
-from linkedin_bots.connecting.domain.tech_recruiter import (SIM_THRESHOLD, _best_phrase_match,
-                                                            _matches_in_segment, _token_distance,
-                                                            normalize, split_segments)
+from linkedin_bots.shared.domain.headline_matching import (SIM_THRESHOLD, _best_phrase_match,
+                                                           _matches_in_segment, _token_distance,
+                                                           normalize, split_segments)
 
 # ---------------------------------------------------------------- dictionaries
 
