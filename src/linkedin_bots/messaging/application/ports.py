@@ -54,10 +54,23 @@ class ConversationList(Protocol):
 
 
 class Thread(Protocol):
-    """A conversation: open it from its card and send one message."""
+    """A conversation: open it from its card and send one message.
+
+    ``send`` does it in one go. ``open``, ``headline`` and ``send_open`` split
+    it, so the message can depend on who the opened conversation is with.
+    """
 
     def send(self, card, name: str, message: str,
              ruled_out: frozenset = frozenset()) -> SendResult: ...
+
+    def open(self, card, name: str,
+             ruled_out: frozenset = frozenset()) -> Optional[SendResult]:
+        """None once open as this contact, else the result that ends them."""
+
+    def headline(self, name: str) -> Optional[str]:
+        """The open contact's headline, or None when it cannot be read."""
+
+    def send_open(self, name: str, message: str) -> SendResult: ...
 
 
 class SentHistory(Protocol):

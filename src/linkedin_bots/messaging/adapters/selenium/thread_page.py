@@ -21,11 +21,24 @@ _THREAD_HEADER_NAME = (
     "span.msg-entity-lockup__entity-title"
 )
 
+# The profile card at the very start of a conversation's history carries the
+# contact's name and headline; the conversation list shows neither.
+PROFILE_CARD_XPATH = "//div[contains(concat(' ', normalize-space(@class), ' '), ' msg-s-profile-card ')]"
+CARD_NAME_XPATH = ".//div[contains(concat(' ', normalize-space(@class), ' '), ' artdeco-entity-lockup__title ')]"
+CARD_HEADLINE_XPATH = ".//div[contains(concat(' ', normalize-space(@class), ' '), ' artdeco-entity-lockup__subtitle ')]"
+# Holds the full headline even when the visible text is truncated.
+HEADLINE_TITLE_XPATH = "./div[@title]"
+MESSAGE_LIST_CSS = "div.msg-s-message-list"
+# Long conversations load their start on demand: scroll up at most this often.
+HEADLINE_SCROLLS = 3
+
 
 class SeleniumThreadPage(ClickMixin):
     def __init__(self, driver, pause):
         self.driver = driver
         self.pause = pause
+        self._thread = None
+        self._opened = False
 
     def send(self, card, name, message, ruled_out=frozenset()):
         """Open ``card``'s conversation and send ``message``.
@@ -33,7 +46,12 @@ class SeleniumThreadPage(ClickMixin):
         ``ruled_out`` holds thread IDs already messaged under this name; the
         conversation is skipped once it opens as one of them.
         """
-        first = display_first_name(name)
+        return self.open(card, name, ruled_out) or self.send_open(name, message)
+
+    def open(self, card, name, ruled_out=frozenset()):
+        """Open ``card``'s conversation; None once it is open as this contact,
+        else the result that ends this contact."""
+        self._thread, self._opened = None, False
         logger.info(f"Opening thread with {name} …")
         try:
             self.driver.execute_script(
@@ -52,7 +70,64 @@ class SeleniumThreadPage(ClickMixin):
                     f"Skipping {name} — same conversation as an earlier "
                     f"send to that name.")
                 return SendResult(SendStatus.SKIPPED, thread)
+        except Exception as e:
+            logger.error(f"Error processing {name}: {e}")
+            return SendResult(SendStatus.ERROR)
+        self._thread, self._opened = thread, True
+        return None
 
+    def headline(self, name):
+        """The headline on the open conversation's profile card, or None.
+
+        Only a card naming this contact counts: a card still on screen from
+        the previous conversation must not choose the template.
+        """
+        expected = name.split()[0].lower() if name else ""
+        try:
+            for attempt in range(HEADLINE_SCROLLS + 1):
+                for card in self._profile_cards():
+                    found = self._card_headline(card, expected)
+                    if found:
+                        return found
+                if attempt < HEADLINE_SCROLLS:
+                    self._scroll_history_to_top()
+                    self.pause(1, 2)
+        except Exception as e:
+            logger.debug(f"Could not read {name}'s headline: {e}")
+        return None
+
+    def _profile_cards(self):
+        return self.driver.find_elements(By.XPATH, PROFILE_CARD_XPATH)
+
+    def _scroll_history_to_top(self):
+        self.driver.execute_script(
+            "const list = document.querySelector(arguments[0]);"
+            "if (list) list.scrollTop = 0;", MESSAGE_LIST_CSS)
+
+    @staticmethod
+    def _card_headline(card, expected):
+        names = card.find_elements(By.XPATH, CARD_NAME_XPATH)
+        if not names or expected not in names[0].text.lower():
+            return None
+        for subtitle in card.find_elements(By.XPATH, CARD_HEADLINE_XPATH):
+            for inner in subtitle.find_elements(By.XPATH, HEADLINE_TITLE_XPATH):
+                title = (inner.get_attribute("title") or "").strip()
+                if title:
+                    return title
+            text = subtitle.text.strip()
+            if text:
+                return text
+        return None
+
+    def send_open(self, name, message):
+        """Send ``message`` in the conversation ``open`` just opened."""
+        if not self._opened:
+            logger.error(f"No open conversation for {name}. Skipping.")
+            return SendResult(SendStatus.ERROR)
+        self._opened = False  # one send per open
+        first = display_first_name(name)
+        thread = self._thread
+        try:
             compose = self._get_compose_box()
             if compose is None:
                 logger.warning(f"No compose box found for {name}. Skipping.")
