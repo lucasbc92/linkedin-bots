@@ -39,6 +39,9 @@ matching template.
    read.
 5. **`--by-title` is opt-in.** Without the flag, every run behaves exactly
    as it does today, `--dry-run` included.
+6. **Students, interns and trainees are not excluded.** With a dev term in
+   the headline they are devs: they are good contacts for mentoring.
+   Without one, they are generic, like anyone else.
 
 ## Goals
 
@@ -105,10 +108,8 @@ and GENERIC. In order:
 1. Empty or `None` headline → GENERIC (reason: unreadable).
 2. Any `RECRUITER_TERMS` hit in any segment → RECRUITER. This means any
    recruiting term, not only tech recruiting.
-3. A student/intern term (`student`, `estudante`, `estagiario/a`, `intern`,
-   `internship`, `trainee`) → GENERIC.
-4. A dev term with no excluded term in the same segment → DEV.
-5. Otherwise → GENERIC.
+3. A dev term with no excluded term in the same segment → DEV.
+4. Otherwise → GENERIC.
 
 Requirements:
 
@@ -150,7 +151,9 @@ Examples the tests must pin:
 | `Engineering Manager` | generic |
 | `CTO` | generic |
 | `Analista de RH` | generic |
-| `Web Development Student` | generic |
+| `Estudante \| Desenvolvedor Front-end` | dev |
+| `Desenvolvedor Trainee` | dev |
+| `Estudante de Medicina` | generic |
 | `Business Developer` | generic |
 | `""` / `None` | generic |
 
@@ -279,9 +282,6 @@ Add both to `SHIPPED["messaging"]` in `tests/test_shipped_templates.py`.
 
 ## Calls made by the spec author (check these)
 
-- **Students and interns → generic,** even with a dev term
-  ("Estudante | Desenvolvedor Front-end"). Your list put students under
-  "others"; I extended that to interns and trainees.
 - **"Business Developer" → generic.** It is a sales role, despite the word
   "developer".
 - **`RECRUITER_TERMS` reused as-is.** Its loose terms ("hiring", "hunter",
