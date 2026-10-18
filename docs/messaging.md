@@ -89,6 +89,7 @@ linkedin-bots message --last-message-regex ".*há 7.*" \
 | `--max N` | unlimited | Stop after sending `N` messages (a blast-radius cap). |
 | `--last-message-regex REGEX` | none | Only message conversations whose last-message preview matches `REGEX`; they get the `-m` template. See [Routing by last message](#routing-by-last-message). |
 | `--last-message-regex-custom REGEX FILE` | none | Send `FILE` instead of the `-m` template to conversations matching `REGEX`. Repeatable. |
+| `--by-title` | off | Read each contact's headline and send the recruiter (base), `dev_` or `generic_` variant of the template. Opens every conversation, also in `--dry-run`. See [Routing by title](#routing-by-title). |
 | `-l`, `--log-level` | `INFO` | `DEBUG`, `INFO`, `WARN`, or `ERROR`. |
 
 ### Routing by last message
@@ -130,6 +131,36 @@ A card whose preview LinkedIn hasn't rendered (occluded cards are emptied by
 its virtualized list) matches nothing and is skipped, so `--dry-run` is worth a
 pass before a real run: it logs each contact with the template that would be
 used.
+
+### Routing by title
+
+With `--by-title`, the bot also reads who each contact is. It opens the
+conversation, reads the headline on the profile card at the start of the
+history, and sends one of three variants of the template the run already
+picked (by `-m` or by the last-message rules, so the language is unchanged):
+
+| Headline | Gets | Example (`-m message_english.txt`) |
+|----------|------|------------------------------------|
+| any recruiting term ("Tech Recruiter", "Talent Acquisition", "Recrutadora") | the base file | `message_english.txt` |
+| someone who writes code (developer, software engineer, front/back end, full stack, mobile, tech lead, software architect) | `dev_` + base | `dev_message_english.txt` |
+| everyone else (managers, CTOs, HR, QA, data, DevOps), or a headline that could not be read | `generic_` + base | `generic_message_english.txt` |
+
+Recruiting wins: "Tech Recruiter | Hiring Developers" is a recruiter. Students,
+interns and trainees with a dev role in their headline are devs.
+
+The siblings are looked up like the base file, one by one: your own templates
+folder first, then the shipped ones. When a sibling doesn't exist (there is no
+`generic_reconnect.txt`, say), that audience gets the base file, and the run
+says so once at startup.
+
+Each contact's line in the log shows the headline, the audience and the file
+used; the run ends with a count per audience, including how many headlines
+could not be read. If LinkedIn changes the profile card, everyone lands in
+generic: that count is where it shows.
+
+`--dry-run --by-title` opens every conversation to read the headline, so it is
+slower than a plain dry run and marks unread conversations as read. It still
+never types anything.
 
 ### Where it starts
 
@@ -211,6 +242,8 @@ selectors live in [`messaging/adapters/selenium/`](../src/linkedin_bots/messagin
 
 - [`design/messaging-bot.spec.md`](design/messaging-bot.spec.md) — the original spec
   (starting HTML and desired behavior).
+- [`design/message-by-title.spec.md`](design/message-by-title.spec.md) — routing by
+  title (`--by-title`).
 
 ## Português (Brasil)
 
@@ -304,6 +337,7 @@ linkedin-bots message --last-message-regex ".*há 7.*" \
 | `--max N` | ilimitado | Para depois de enviar `N` mensagens (um teto para limitar estragos). |
 | `--last-message-regex REGEX` | nenhum | Só manda mensagem para conversas cuja prévia da última mensagem bate com `REGEX`; elas recebem o template de `-m`. Veja [Roteamento pela última mensagem](#roteamento-pela-última-mensagem). |
 | `--last-message-regex-custom REGEX ARQUIVO` | nenhum | Envia `ARQUIVO` em vez do template de `-m` para as conversas que batem com `REGEX`. Pode ser repetido. |
+| `--by-title` | desligado | Lê o título de cada contato e envia a variante de recrutador (o arquivo base), `dev_` ou `generic_` do template. Abre todas as conversas, inclusive com `--dry-run`. Veja [Roteamento pelo título](#roteamento-pelo-título). |
 | `-l`, `--log-level` | `INFO` | `DEBUG`, `INFO`, `WARN` ou `ERROR`. |
 
 ### Roteamento pela última mensagem
@@ -347,6 +381,36 @@ Um card cuja prévia o LinkedIn ainda não renderizou (cards fora da tela são
 esvaziados pela lista virtualizada) não bate com nada e é pulado, então vale
 uma passada de `--dry-run` antes de uma execução real: ela registra cada
 contato com o template que seria usado.
+
+### Roteamento pelo título
+
+Com `--by-title`, o bot também lê quem é cada contato. Ele abre a conversa, lê
+o título no cartão de perfil do início do histórico e envia uma de três
+variantes do template que a execução já escolheu (pelo `-m` ou pelas regras da
+última mensagem, então o idioma não muda):
+
+| Título | Recebe | Exemplo (`-m message.txt`) |
+|--------|--------|----------------------------|
+| qualquer termo de recrutamento ("Tech Recruiter", "Talent Acquisition", "Recrutadora") | o arquivo base | `message.txt` |
+| quem escreve código (desenvolvedor, engenheiro de software, front/back end, full stack, mobile, tech lead, arquiteto de software) | `dev_` + base | `dev_message.txt` |
+| todos os outros (gestores, CTOs, RH, QA, dados, DevOps), ou um título que não pôde ser lido | `generic_` + base | `generic_message.txt` |
+
+Recrutamento vence: "Tech Recruiter | Hiring Developers" é recrutador.
+Estudantes, estagiários e trainees com um cargo de dev no título são devs.
+
+As variantes são procuradas como o arquivo base, uma a uma: primeiro na sua
+pasta de templates, depois nos templates do pacote. Quando uma não existe (não
+há `generic_reconnect.txt`, por exemplo), essa audiência recebe o arquivo base,
+e a execução avisa uma vez, na inicialização.
+
+A linha de cada contato no log mostra o título, a audiência e o arquivo usado;
+a execução termina com uma contagem por audiência, incluindo quantos títulos
+não puderam ser lidos. Se o LinkedIn mudar o cartão de perfil, todo mundo cai
+no genérico: é nessa contagem que isso aparece.
+
+`--dry-run --by-title` abre todas as conversas para ler o título, então é mais
+lento que um dry run comum e marca as conversas não lidas como lidas. Ainda
+assim, nunca digita nada.
 
 ### Onde ele começa
 
@@ -434,3 +498,5 @@ do LinkedIn — os seletores ficam em [`messaging/adapters/selenium/`](../src/li
 
 - [`design/messaging-bot.spec.pt-BR.md`](design/messaging-bot.spec.pt-BR.md) — a spec
   original (HTML de partida e comportamento desejado).
+- [`design/message-by-title.spec.md`](design/message-by-title.spec.md) — roteamento pelo
+  título (`--by-title`), em inglês.

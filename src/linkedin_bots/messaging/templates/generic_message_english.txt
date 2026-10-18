@@ -1,0 +1,9 @@
+Hi {name}, how are you?
+
+Thanks for accepting my connection request! 😊
+
+I'm a full stack developer who uses AI end to end in my workflow, from specs and design to code, tests and delivery. I'm currently open to new job opportunities.
+
+If you hear of a role that might fit, at your company or elsewhere, I'd really appreciate it if you thought of me. And if you'd just like to chat, feel free to reach out!
+
+Best regards

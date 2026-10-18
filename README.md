@@ -151,7 +151,9 @@ src/linkedin_bots/messaging/templates/    # used by `linkedin-bots message`
 ├── dev_message.txt                       (follow-up with developers)
 ├── dev_message_english.txt
 ├── dev_reconnect.txt                     (re-approaching old developer contacts)
-└── dev_reconnect_english.txt
+├── dev_reconnect_english.txt
+├── generic_message.txt                   (everyone else, with --by-title)
+└── generic_message_english.txt
 ```
 
 The shipped templates are generic. **Your own templates** go in your data
@@ -454,7 +456,9 @@ src/linkedin_bots/messaging/templates/    # usado por `linkedin-bots message`
 ├── dev_message.txt                       (acompanhamento com devs)
 ├── dev_message_english.txt
 ├── dev_reconnect.txt                     (reabordar devs antigos)
-└── dev_reconnect_english.txt
+├── dev_reconnect_english.txt
+├── generic_message.txt                   (todos os outros, com --by-title)
+└── generic_message_english.txt
 ```
 
 Os templates distribuídos são genéricos. **Seus próprios templates** ficam na

@@ -1,0 +1,9 @@
+Olá, {name}, tudo bem?
+
+Agradeço por aceitar a conexão! 😊
+
+Sou dev full stack e uso IA de ponta a ponta no meu fluxo de trabalho, da especificação e do design ao código, aos testes e à entrega. Estou em busca de novas oportunidades de trabalho.
+
+Se souber de alguma vaga que combine com o meu perfil, na sua empresa ou em outro lugar, agradeço muito se lembrar de mim. E se quiser só trocar uma ideia, é só chamar!
+
+Um abraço

@@ -201,3 +201,75 @@ def test_message_walks_in_reverse_with_the_same_flag_as_connect():
     assert parser.parse_args(["message", "-r"]).reverse
     assert parser.parse_args(["message", "--reverse"]).reverse
     assert parser.parse_args(["connect", "-r"]).reverse
+
+
+def _write(folder, name, text):
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / name).write_text(text, encoding="utf-8")
+
+
+def test_by_title_reaches_the_parser():
+    parser = cli.build_parser()
+    assert parser.parse_args(["message"]).by_title is False
+    assert parser.parse_args(["message", "--by-title"]).by_title is True
+
+
+def test_a_family_takes_each_sibling_from_the_data_home_first(isolated_data_home):
+    from linkedin_bots.cli.message import load_family
+
+    folder = isolated_data_home / "messaging" / "templates"
+    _write(folder, "message.txt", "Mine {name}")
+    _write(folder, "dev_message.txt", "My dev {name}")
+    logger = logging.getLogger("linkedin_bot")
+    base = require_template("message.txt", "messaging", "-m/--message", logger)
+    family = load_family("message.txt", base, logger)
+    assert family.recruiter.templates.personalize("Ana") == "Mine Ana"
+    assert family.dev.templates.personalize("Ana") == "My dev Ana"
+    assert family.generic.source == "generic_message.txt"
+    assert family.generic.templates.personalize("Ana").startswith("Olá, Ana, tudo bem?")
+
+
+def test_a_missing_sibling_falls_back_to_the_base_and_warns(caplog):
+    from linkedin_bots.cli.message import load_family
+
+    logger = logging.getLogger("linkedin_bot")
+    family = load_family("reconnect.txt", template_dir("messaging") / "reconnect.txt", logger)
+    assert family.dev.source == "dev_reconnect.txt"
+    assert family.generic.source == "reconnect.txt"
+    assert "generic_reconnect.txt not found; generic contacts get reconnect.txt" in caplog.text
+
+
+def test_a_base_given_as_a_path_finds_its_siblings_next_to_it(tmp_path):
+    from linkedin_bots.cli.message import load_family
+
+    _write(tmp_path, "x.txt", "X {name}")
+    _write(tmp_path, "dev_x.txt", "Dev X {name}")
+    family = load_family(str(tmp_path / "x.txt"), tmp_path / "x.txt",
+                         logging.getLogger("linkedin_bot"))
+    assert family.dev.source == "dev_x.txt"
+    assert family.generic.source == "x.txt"
+
+
+def test_by_title_hands_the_walk_template_families(monkeypatch):
+    import linkedin_bots.messaging.application.send_follow_ups as use_case_module
+    import linkedin_bots.shared.infrastructure.browser as browser
+    import linkedin_bots.shared.infrastructure.sleep as sleep
+    from linkedin_bots.messaging.domain.headline_audience import TemplateFamily
+
+    monkeypatch.setattr(browser, "create_driver", lambda attach_to_existing: (None, False))
+    monkeypatch.setattr(sleep, "prevent_sleep", lambda: None)
+    monkeypatch.setattr(sleep, "allow_sleep", lambda: None)
+    seen = {}
+
+    class FakeUseCase:
+        def __init__(self, conversations, thread, history, pause, routing, settings):
+            seen.update(routing=routing, settings=settings)
+
+        def run(self):
+            pass
+
+    monkeypatch.setattr(use_case_module, "SendFollowUps", FakeUseCase)
+    cli.main(["message", "--by-title", "--last-message-regex-custom", "for 7", "message_english.txt"])
+    assert seen["settings"].by_title is True
+    assert isinstance(seen["routing"].default, TemplateFamily)
+    assert seen["routing"].rules[0].templates.dev.source == "dev_message_english.txt"
