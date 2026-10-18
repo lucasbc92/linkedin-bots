@@ -6,6 +6,7 @@ adjacent card. The list re-sorts the moment a message is sent (the messaged
 contact jumps to the top), so the next card is captured *before* sending.
 """
 import logging
+from collections import Counter
 from dataclasses import dataclass
 from datetime import date
 from typing import Optional
@@ -13,6 +14,7 @@ from typing import Optional
 from linkedin_bots.messaging.application.ports import (ConversationList, HistoryUnreadable,
                                                        HistoryUnwritable, Pause, SendStatus,
                                                        SentHistory, Thread)
+from linkedin_bots.messaging.domain.headline_audience import Audience, classify
 from linkedin_bots.messaging.domain.routing import Routing
 from linkedin_bots.messaging.domain.walk import Skip, Stop, assess
 from linkedin_bots.shared.domain.names import display_first_name
@@ -32,6 +34,11 @@ class FollowUpSettings:
     dry_run: bool = False
     max_messages: Optional[int] = None
     upward: bool = False
+    by_title: bool = False
+
+
+def _first_line(message):
+    return message.splitlines()[0] if message else ""
 
 
 class SendFollowUps:
@@ -47,6 +54,8 @@ class SendFollowUps:
         self.sent = 0
         self.failed = 0
         self.skipped = 0
+        self.audiences = Counter()
+        self.unreadable = 0
 
     def run(self):
         """Walk the list; the tally is logged however the run ends."""
@@ -56,6 +65,9 @@ class SendFollowUps:
             logger.info(
                 f"Run complete — "
                 f"sent: {self.sent} | failed: {self.failed} | skipped: {self.skipped}")
+            if self.settings.by_title:
+                counts = ", ".join(f"{a.value}={self.audiences[a]}" for a in Audience)
+                logger.info(f"By title: {counts} ({self.unreadable} unreadable)")
 
     def _walk(self):
         s = self.settings
@@ -112,15 +124,17 @@ class SendFollowUps:
                     + ("may be someone else; checking its conversation."
                        if verdict.namesake == "maybe" else
                        "is a different person with the same name."))
-            message = verdict.templates.personalize(display_first_name(card.name))
+            if s.by_title:
+                message = None  # chosen once the conversation shows the headline
+            else:
+                message = verdict.templates.personalize(display_first_name(card.name))
             if verdict.matched:
                 logger.info(f"{card.name}: last message matches '{verdict.matched}' "
                             f"→ using {verdict.source}")
 
-            if s.dry_run:
-                first_line = message.splitlines()[0] if message else ""
+            if s.dry_run and not s.by_title:
                 logger.info(f"[DRY-RUN] Would send to {card.name} "
-                            f"({verdict.source}): {first_line}")
+                            f"({verdict.source}): {_first_line(message)}")
                 current = self.conversations.advance(current)
                 continue
 
@@ -130,7 +144,11 @@ class SendFollowUps:
             next_name = (self.conversations.ensure_name(next_card)
                          if next_card is not None else None)
 
-            if not self._send(current, card, message, verdict.ruled_out):
+            if s.by_title:
+                result = self._send_by_title(current, card, verdict)
+            else:
+                result = self.thread.send(current, card.name, message, verdict.ruled_out)
+            if result is not None and not self._tally(result, card):
                 return
 
             if s.max_messages and self.sent >= s.max_messages:
@@ -148,10 +166,37 @@ class SendFollowUps:
         logger.info(f"Reached the {'top' if s.upward else 'bottom'} "
                     f"of the conversation list.")
 
-    def _send(self, handle, card, message, ruled_out):
-        """Send to one card; False when the walk must stop."""
+    def _send_by_title(self, handle, card, verdict):
+        """Open the conversation, read the headline and send that audience's
+        variant of ``verdict.templates``. None in a dry run: nothing was sent."""
+        refusal = self.thread.open(handle, card.name, verdict.ruled_out)
+        if refusal is not None:
+            return refusal
+        headline = self.thread.headline(card.name)
+        audience = classify(headline)
+        variant = verdict.templates.pick(audience)
+        shown = f'"{headline}"' if headline else "headline unreadable"
+        logger.info(f"{card.name}: {shown} → {audience.value} → {variant.source}")
+        message = variant.templates.personalize(display_first_name(card.name))
+
+        if self.settings.dry_run:
+            self._count(audience, headline)
+            logger.info(f"[DRY-RUN] Would send to {card.name} "
+                        f"({variant.source}): {_first_line(message)}")
+            return None
+        result = self.thread.send_open(card.name, message)
+        if result.status is SendStatus.SENT:
+            self._count(audience, headline)
+        return result
+
+    def _count(self, audience, headline):
+        self.audiences[audience] += 1
+        if not headline:
+            self.unreadable += 1
+
+    def _tally(self, result, card):
+        """Count one send attempt; False when the walk must stop."""
         first = display_first_name(card.name)
-        result = self.thread.send(handle, card.name, message, ruled_out)
         if result.status is SendStatus.SENT:
             self.sent += 1
             try:

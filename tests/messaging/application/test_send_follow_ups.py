@@ -8,6 +8,7 @@ import pytest
 from linkedin_bots.messaging.application.ports import (HistoryUnreadable, HistoryUnwritable,
                                                        SendResult, SendStatus)
 from linkedin_bots.messaging.application.send_follow_ups import FollowUpSettings, SendFollowUps
+from linkedin_bots.messaging.domain.headline_audience import TemplateFamily, Variant
 from linkedin_bots.messaging.domain.past_sends import PastSend
 from linkedin_bots.messaging.domain.routing import Routing, TemplateRoute
 from linkedin_bots.messaging.domain.walk import ConversationCard
@@ -63,14 +64,41 @@ class FakeInbox:
 
 
 class FakeThread:
-    def __init__(self, inbox, outcome=SendStatus.SENT, thread=None, interrupt_after=None):
+    def __init__(self, inbox, outcome=SendStatus.SENT, thread=None, interrupt_after=None,
+                 headlines=None):
         self.inbox = inbox
         self.outcome = outcome
         self.thread = thread
         self.interrupt_after = interrupt_after
+        self.headlines = headlines or {}
         self.sent = []
+        self.calls = []
+        self._open = None
+
+    def open(self, conv, name, ruled_out=frozenset()):
+        self.calls.append("open")
+        if self.interrupt_after is not None and len(self.sent) == self.interrupt_after:
+            raise KeyboardInterrupt
+        if self.thread and self.thread in ruled_out:
+            return SendResult(SendStatus.SKIPPED, self.thread)
+        if self.outcome in (SendStatus.SKIPPED, SendStatus.ERROR):
+            return SendResult(self.outcome, self.thread)
+        self._open = conv
+        return None
+
+    def headline(self, name):
+        self.calls.append("headline")
+        return self.headlines.get(name)
+
+    def send_open(self, name, message):
+        self.calls.append("send_open")
+        self.sent.append((name, message))
+        if self.outcome is SendStatus.SENT:
+            self.inbox.jump_to_top(self._open)
+        return SendResult(self.outcome, self.thread)
 
     def send(self, conv, name, message, ruled_out=frozenset()):
+        self.calls.append("send")
         if self.interrupt_after is not None and len(self.sent) == self.interrupt_after:
             raise KeyboardInterrupt
         if self.thread and self.thread in ruled_out:
@@ -265,3 +293,69 @@ def test_a_send_that_cannot_be_recorded_stops_the_walk(caplog):
 def test_the_unreadable_history_advice_never_says_to_move_it(caplog):
     _run([Conv("Ana Silva")], history=FakeHistory(unreadable=True))
     assert "move" not in caplog.text and "restore a backup" in caplog.text
+
+
+FAMILY = TemplateFamily(Variant(MessageTemplates(["Recruiter {name}"]), "message.txt"),
+                        Variant(MessageTemplates(["Dev {name}"]), "dev_message.txt"),
+                        Variant(MessageTemplates(["Generic {name}"]), "generic_message.txt"))
+BY_TITLE = Routing(default=FAMILY, default_source="message.txt")
+HEADLINES = {"Ana": "Tech Recruiter", "Bruno": "Desenvolvedor Java", "Carla": "CTO"}
+
+
+def _by_title(convs, headlines=HEADLINES, thread_kw=None, **settings):
+    return _run(convs, routing=BY_TITLE,
+                thread_kw={"headlines": headlines, **(thread_kw or {})},
+                by_title=True, **settings)
+
+
+def test_by_title_each_audience_gets_its_variant():
+    _, _, thread, _, _ = _by_title([Conv("Ana"), Conv("Bruno"), Conv("Carla")])
+    assert thread.sent == [("Ana", "Recruiter Ana"), ("Bruno", "Dev Bruno"),
+                           ("Carla", "Generic Carla")]
+
+
+def test_by_title_an_unreadable_headline_gets_generic_and_says_so(caplog):
+    caplog.set_level(logging.INFO, logger="linkedin_bot")
+    _, _, thread, _, _ = _by_title([Conv("Ana")], headlines={})
+    assert thread.sent == [("Ana", "Generic Ana")]
+    assert "Ana: headline unreadable → generic → generic_message.txt" in caplog.text
+
+
+def test_by_title_logs_headline_audience_and_file(caplog):
+    caplog.set_level(logging.INFO, logger="linkedin_bot")
+    _by_title([Conv("Bruno")])
+    assert 'Bruno: "Desenvolvedor Java" → dev → dev_message.txt' in caplog.text
+
+
+def test_by_title_dry_run_opens_but_never_sends(caplog):
+    caplog.set_level(logging.INFO, logger="linkedin_bot")
+    use_case, _, thread, history, _ = _by_title([Conv("Bruno")], dry_run=True)
+    assert "open" in thread.calls and "headline" in thread.calls
+    assert "send_open" not in thread.calls and "send" not in thread.calls
+    assert history.recorded == [] and use_case.sent == 0
+    assert "[DRY-RUN] Would send to Bruno (dev_message.txt): Dev Bruno" in caplog.text
+
+
+def test_without_by_title_the_thread_only_sees_send():
+    _, _, thread, _, _ = _run([Conv("Ana Silva"), Conv("Bruno Lima")])
+    assert set(thread.calls) == {"send"}
+
+
+def test_by_title_a_skip_on_open_counts_as_skipped():
+    history = FakeHistory({"Ana": [PastSend(datetime(2026, 10, 1), photo="OLD", thread="2-ana")]})
+    use_case, _, thread, history, _ = _by_title([Conv("Ana", photo="NEW")], history=history,
+                                                thread_kw={"thread": "2-ana"})
+    assert (use_case.skipped, thread.sent, history.recorded) == (1, [], [])
+
+
+def test_by_title_tally_counts_each_audience(caplog):
+    caplog.set_level(logging.INFO, logger="linkedin_bot")
+    _by_title([Conv("Ana"), Conv("Bruno"), Conv("Carla"), Conv("Dora")])
+    assert "By title: recruiter=1, dev=1, generic=2 (1 unreadable)" in caplog.text
+
+
+def test_by_title_ctrl_c_still_reports_the_audience_tally(caplog):
+    caplog.set_level(logging.INFO, logger="linkedin_bot")
+    with pytest.raises(KeyboardInterrupt):
+        _by_title([Conv("Ana"), Conv("Bruno")], thread_kw={"interrupt_after": 1})
+    assert "By title: recruiter=1, dev=0, generic=0 (0 unreadable)" in caplog.text
