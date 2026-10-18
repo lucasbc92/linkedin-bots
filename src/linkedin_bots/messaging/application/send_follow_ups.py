@@ -151,7 +151,10 @@ class SendFollowUps:
             if result is not None and not self._tally(result, card):
                 return
 
-            if s.max_messages and self.sent >= s.max_messages:
+            # A by-title dry run opens conversations (marking them read), so
+            # --max caps the would-sends there too.
+            done = sum(self.audiences.values()) if s.dry_run else self.sent
+            if s.max_messages and done >= s.max_messages:
                 logger.info(f"Reached --max {s.max_messages}. Stopping.")
                 return
 

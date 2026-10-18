@@ -5,6 +5,7 @@ from linkedin_bots.messaging.adapters.selenium.thread_page import (CARD_HEADLINE
                                                                   CARD_NAME_XPATH,
                                                                   HEADLINE_SCROLLS,
                                                                   HEADLINE_TITLE_XPATH,
+                                                                  TOP_OF_LIST_CSS,
                                                                   SeleniumThreadPage)
 from linkedin_bots.messaging.application.ports import SendResult, SendStatus
 
@@ -145,3 +146,13 @@ def test_reading_the_headline_never_raises():
 
     page._profile_cards = boom
     assert page.headline("Ana Silva") is None
+
+
+def test_scrolling_up_brings_the_start_of_the_history_into_view():
+    """Scrolling to the marker works whichever way the list is laid out;
+    scrollTop = 0 is the bottom of a column-reversed scroller."""
+    scripts = []
+    driver = types.SimpleNamespace(current_url="", execute_script=lambda *a: scripts.append(a))
+    SeleniumThreadPage(driver, pause=lambda low, high: None)._scroll_history_to_top()
+    (script, target), = scripts
+    assert "scrollIntoView" in script and target == TOP_OF_LIST_CSS

@@ -359,3 +359,14 @@ def test_by_title_ctrl_c_still_reports_the_audience_tally(caplog):
     with pytest.raises(KeyboardInterrupt):
         _by_title([Conv("Ana"), Conv("Bruno")], thread_kw={"interrupt_after": 1})
     assert "By title: recruiter=1, dev=0, generic=0 (0 unreadable)" in caplog.text
+
+
+def test_by_title_dry_run_honors_max():
+    _, _, thread, _, _ = _by_title([Conv("Ana"), Conv("Bruno"), Conv("Carla")],
+                                   dry_run=True, max_messages=1)
+    assert thread.calls.count("open") == 1
+
+
+def test_by_title_max_stops_after_that_many_sends():
+    _, _, thread, _, _ = _by_title([Conv("Ana"), Conv("Bruno"), Conv("Carla")], max_messages=2)
+    assert [name for name, _ in thread.sent] == ["Ana", "Bruno"]

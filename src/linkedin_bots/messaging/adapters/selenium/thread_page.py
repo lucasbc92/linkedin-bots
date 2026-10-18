@@ -28,7 +28,9 @@ CARD_NAME_XPATH = ".//div[contains(concat(' ', normalize-space(@class), ' '), ' 
 CARD_HEADLINE_XPATH = ".//div[contains(concat(' ', normalize-space(@class), ' '), ' artdeco-entity-lockup__subtitle ')]"
 # Holds the full headline even when the visible text is truncated.
 HEADLINE_TITLE_XPATH = "./div[@title]"
-MESSAGE_LIST_CSS = "div.msg-s-message-list"
+# The marker before the first message; scrolling it into view works whichever
+# way the history is laid out (scrollTop = 0 is the bottom when reversed).
+TOP_OF_LIST_CSS = "li.msg-s-message-list__top-of-list"
 # Long conversations load their start on demand: scroll up at most this often.
 HEADLINE_SCROLLS = 3
 
@@ -101,8 +103,8 @@ class SeleniumThreadPage(ClickMixin):
 
     def _scroll_history_to_top(self):
         self.driver.execute_script(
-            "const list = document.querySelector(arguments[0]);"
-            "if (list) list.scrollTop = 0;", MESSAGE_LIST_CSS)
+            "const top = document.querySelector(arguments[0]);"
+            "if (top) top.scrollIntoView({block: 'start'});", TOP_OF_LIST_CSS)
 
     @staticmethod
     def _card_headline(card, expected):
