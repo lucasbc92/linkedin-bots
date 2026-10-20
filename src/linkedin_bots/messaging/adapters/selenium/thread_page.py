@@ -28,9 +28,13 @@ CARD_NAME_XPATH = ".//div[contains(concat(' ', normalize-space(@class), ' '), ' 
 CARD_HEADLINE_XPATH = ".//div[contains(concat(' ', normalize-space(@class), ' '), ' artdeco-entity-lockup__subtitle ')]"
 # Holds the full headline even when the visible text is truncated.
 HEADLINE_TITLE_XPATH = "./div[@title]"
-# The marker before the first message; scrolling it into view works whichever
-# way the history is laid out (scrollTop = 0 is the bottom when reversed).
+# The marker before the first message, and the list that scrolls it. The list
+# is column-reversed: scrollTop = 0 is its bottom and the start of the history
+# is at -scrollHeight (clamped to 0 when it is not reversed). Once the history
+# overflows, scrollIntoView on the marker leaves the list where it is, and
+# LinkedIn renders the profile card only when the start is on screen.
 TOP_OF_LIST_CSS = "li.msg-s-message-list__top-of-list"
+MESSAGE_LIST_CSS = "div.msg-s-message-list"
 # Long conversations load their start on demand: scroll up at most this often.
 HEADLINE_SCROLLS = 3
 
@@ -104,7 +108,8 @@ class SeleniumThreadPage(ClickMixin):
     def _scroll_history_to_top(self):
         self.driver.execute_script(
             "const top = document.querySelector(arguments[0]);"
-            "if (top) top.scrollIntoView({block: 'start'});", TOP_OF_LIST_CSS)
+            "const list = top && top.closest(arguments[1]);"
+            "if (list) list.scrollTop = -list.scrollHeight;", TOP_OF_LIST_CSS, MESSAGE_LIST_CSS)
 
     @staticmethod
     def _card_headline(card, expected):
