@@ -44,6 +44,10 @@ SIM_THRESHOLD = 0.85
 #: tail drowns out the one word that carries the meaning.
 MIN_TOKEN_SIM = 0.82
 
+#: Dictionary words one letter away from ordinary words ("Inter" the bank,
+#: "internal", "internet", "open source"). They only count on an exact match.
+EXACT_WORDS = frozenset({"intern", "sourcer"})
+
 # Bullet separators only. A spaced hyphen is not one: "Recruiting Manager -
 # Engineering" is a single thought and must keep its two halves together.
 _SEGMENT_SPLIT = re.compile(r"[|/•·,;\n\r]+|\s{2,}")
@@ -75,9 +79,10 @@ def _similarity(a, b):
     """Fuzzy string ratio, with short strings compared exactly.
 
     'ti' vs 'tv' scores 0.5 under SequenceMatcher — far too generous for
-    two-letter tokens, so anything up to 3 characters must match exactly.
+    two-letter tokens, so anything up to 3 characters must match exactly, as
+    must the words in :data:`EXACT_WORDS`.
     """
-    if len(a) <= 3 or len(b) <= 3:
+    if len(a) <= 3 or len(b) <= 3 or a in EXACT_WORDS or b in EXACT_WORDS:
         return 1.0 if a == b else 0.0
     return SequenceMatcher(None, a, b).ratio()
 

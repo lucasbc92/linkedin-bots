@@ -17,6 +17,10 @@ ACCEPTED = {
     "Senior Software Engineer | Java | Spring": 0.85,
     "Desenvolvedor Back-end Sênior | Spring Boot | Kotlin": 0.85,
     "Desenvolvedor Java Pleno/Sênior": 0.85,
+    # Ordinary words one letter away from an exclusion term.
+    "Senior Java Backend Engineer | Spring | Micronaut | AWS | NewRelic | Inter 🧡": 1.0,
+    "Senior Java Developer | Internal Platforms": 1.0,
+    "Senior Java Developer | Open Source": 1.0,
 }
 
 REJECTED = (

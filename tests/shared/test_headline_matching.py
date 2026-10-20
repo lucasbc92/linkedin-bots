@@ -13,3 +13,10 @@ def test_segments_split_on_bullets_not_on_spaced_hyphens():
 
 def test_recruiter_terms_match_fuzzily_within_a_segment():
     assert _matches_in_segment("recrutadora de ti".split(), RECRUITER_TERMS)
+
+
+def test_words_one_letter_from_an_ordinary_word_match_only_exactly():
+    assert not _matches_in_segment("open source".split(), RECRUITER_TERMS)
+    assert not _matches_in_segment("tech source".split(), ("tech sourcer",))
+    assert not _matches_in_segment("inter".split(), ("intern",))
+    assert _matches_in_segment("it sourcer".split(), RECRUITER_TERMS)

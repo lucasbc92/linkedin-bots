@@ -18,6 +18,7 @@ CASES = [
     ("Software Engineer @ Nubank", Audience.DEV),
     ("DESENVOLVEDOR BACK-END &amp; INSTRUTOR", Audience.DEV),
     ("Tech Lead | Engineering Manager", Audience.DEV),
+    ("Senior Java Developer | Open Source", Audience.DEV),
     ("QA Analyst", Audience.GENERIC),
     ("Data Engineer", Audience.GENERIC),
     ("DevOps Engineer", Audience.GENERIC),
