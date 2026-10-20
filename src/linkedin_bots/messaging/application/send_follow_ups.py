@@ -12,8 +12,8 @@ from datetime import date
 from typing import Optional
 
 from linkedin_bots.messaging.application.ports import (ConversationList, HistoryUnreadable,
-                                                       HistoryUnwritable, Pause, SendStatus,
-                                                       SentHistory, Thread)
+                                                       HistoryUnwritable, Pause, SendResult,
+                                                       SendStatus, SentHistory, Thread)
 from linkedin_bots.messaging.domain.headline_audience import Audience, classify
 from linkedin_bots.messaging.domain.routing import Routing
 from linkedin_bots.messaging.domain.walk import Skip, Stop, assess
@@ -67,7 +67,7 @@ class SendFollowUps:
                 f"sent: {self.sent} | failed: {self.failed} | skipped: {self.skipped}")
             if self.settings.by_title:
                 counts = ", ".join(f"{a.value}={self.audiences[a]}" for a in Audience)
-                logger.info(f"By title: {counts} ({self.unreadable} unreadable)")
+                logger.info(f"By title: {counts}, unreadable={self.unreadable} (skipped)")
 
     def _walk(self):
         s = self.settings
@@ -171,31 +171,33 @@ class SendFollowUps:
 
     def _send_by_title(self, handle, card, verdict):
         """Open the conversation, read the headline and send that audience's
-        variant of ``verdict.templates``. None in a dry run: nothing was sent."""
+        variant of ``verdict.templates``. None in a dry run: nothing was sent.
+
+        An unreadable headline is skipped, not sent the generic variant: when
+        reading breaks, every contact would get it. Not recorded either, so a
+        later run tries again."""
         refusal = self.thread.open(handle, card.name, verdict.ruled_out)
         if refusal is not None:
             return refusal
         headline = self.thread.headline(card.name)
+        if not headline:
+            self.unreadable += 1
+            logger.info(f"Skipping {card.name} — headline unreadable.")
+            return None if self.settings.dry_run else SendResult(SendStatus.SKIPPED)
         audience = classify(headline)
         variant = verdict.templates.pick(audience)
-        shown = f'"{headline}"' if headline else "headline unreadable"
-        logger.info(f"{card.name}: {shown} → {audience.value} → {variant.source}")
+        logger.info(f'{card.name}: "{headline}" → {audience.value} → {variant.source}')
         message = variant.templates.personalize(display_first_name(card.name))
 
         if self.settings.dry_run:
-            self._count(audience, headline)
+            self.audiences[audience] += 1
             logger.info(f"[DRY-RUN] Would send to {card.name} "
                         f"({variant.source}): {_first_line(message)}")
             return None
         result = self.thread.send_open(card.name, message)
         if result.status is SendStatus.SENT:
-            self._count(audience, headline)
+            self.audiences[audience] += 1
         return result
-
-    def _count(self, audience, headline):
-        self.audiences[audience] += 1
-        if not headline:
-            self.unreadable += 1
 
     def _tally(self, result, card):
         """Count one send attempt; False when the walk must stop."""

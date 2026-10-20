@@ -314,11 +314,21 @@ def test_by_title_each_audience_gets_its_variant():
                            ("Carla", "Generic Carla")]
 
 
-def test_by_title_an_unreadable_headline_gets_generic_and_says_so(caplog):
+def test_by_title_an_unreadable_headline_is_skipped_and_not_recorded(caplog):
     caplog.set_level(logging.INFO, logger="linkedin_bot")
-    _, _, thread, _, _ = _by_title([Conv("Ana")], headlines={})
-    assert thread.sent == [("Ana", "Generic Ana")]
-    assert "Ana: headline unreadable → generic → generic_message.txt" in caplog.text
+    use_case, _, thread, history, _ = _by_title([Conv("Ana"), Conv("Bruno")],
+                                                headlines={"Bruno": "Desenvolvedor Java"})
+    assert thread.sent == [("Bruno", "Dev Bruno")]
+    assert history.recorded == [("Bruno", "photo-Bruno", None)]
+    assert (use_case.sent, use_case.skipped) == (1, 1)
+    assert "Skipping Ana — headline unreadable." in caplog.text
+
+
+def test_by_title_dry_run_skips_an_unreadable_headline(caplog):
+    caplog.set_level(logging.INFO, logger="linkedin_bot")
+    _by_title([Conv("Ana")], headlines={}, dry_run=True)
+    assert "Skipping Ana — headline unreadable." in caplog.text
+    assert "[DRY-RUN]" not in caplog.text
 
 
 def test_by_title_logs_headline_audience_and_file(caplog):
@@ -351,14 +361,14 @@ def test_by_title_a_skip_on_open_counts_as_skipped():
 def test_by_title_tally_counts_each_audience(caplog):
     caplog.set_level(logging.INFO, logger="linkedin_bot")
     _by_title([Conv("Ana"), Conv("Bruno"), Conv("Carla"), Conv("Dora")])
-    assert "By title: recruiter=1, dev=1, generic=2 (1 unreadable)" in caplog.text
+    assert "By title: recruiter=1, dev=1, generic=1, unreadable=1 (skipped)" in caplog.text
 
 
 def test_by_title_ctrl_c_still_reports_the_audience_tally(caplog):
     caplog.set_level(logging.INFO, logger="linkedin_bot")
     with pytest.raises(KeyboardInterrupt):
         _by_title([Conv("Ana"), Conv("Bruno")], thread_kw={"interrupt_after": 1})
-    assert "By title: recruiter=1, dev=0, generic=0 (0 unreadable)" in caplog.text
+    assert "By title: recruiter=1, dev=0, generic=0, unreadable=0 (skipped)" in caplog.text
 
 
 def test_by_title_dry_run_honors_max():

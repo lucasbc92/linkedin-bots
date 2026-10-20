@@ -78,8 +78,8 @@ def add_parser(sub):
     mp.add_argument(
         "--by-title", action="store_true",
         help="Read each contact's headline and send the recruiter (base), dev_ or "
-             "generic_ variant of the template. Opens every conversation, also in "
-             "--dry-run.")
+             "generic_ variant of the template; a contact whose headline cannot be "
+             "read is skipped. Opens every conversation, also in --dry-run.")
     add_log_level(mp)
     mp.set_defaults(run=run)
 
