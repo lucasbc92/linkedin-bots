@@ -143,10 +143,13 @@ picked (by `-m` or by the last-message rules, so the language is unchanged):
 |----------|------|------------------------------------|
 | any recruiting term ("Tech Recruiter", "Talent Acquisition", "Recrutadora") | the base file | `message_english.txt` |
 | someone who writes code (developer, software engineer, front/back end, full stack, mobile, tech lead, software architect) | `dev_` + base | `dev_message_english.txt` |
-| everyone else (managers, CTOs, HR, QA, data, DevOps), or a headline that could not be read | `generic_` + base | `generic_message_english.txt` |
+| everyone else (managers, CTOs, HR, QA, data, DevOps) | `generic_` + base | `generic_message_english.txt` |
 
 Recruiting wins: "Tech Recruiter | Hiring Developers" is a recruiter. Students,
 interns and trainees with a dev role in their headline are devs.
+
+A contact whose headline can't be read is skipped, not sent a guess. They stay
+out of the send history, so a later run tries them again.
 
 The siblings are looked up like the base file, one by one: your own templates
 folder first, then the shipped ones. When a sibling doesn't exist (there is no
@@ -154,9 +157,9 @@ folder first, then the shipped ones. When a sibling doesn't exist (there is no
 says so once at startup.
 
 Each contact's line in the log shows the headline, the audience and the file
-used; the run ends with a count per audience, including how many headlines
-could not be read. If LinkedIn changes the profile card, everyone lands in
-generic: that count is where it shows.
+used; the run ends with a count per audience and how many headlines could
+not be read (and were skipped). If LinkedIn changes the profile card, everyone
+is skipped: that count is where it shows.
 
 `--dry-run --by-title` opens every conversation to read the headline, so it is
 slower than a plain dry run and marks unread conversations as read. It still
@@ -393,10 +396,14 @@ variantes do template que a execução já escolheu (pelo `-m` ou pelas regras d
 |--------|--------|----------------------------|
 | qualquer termo de recrutamento ("Tech Recruiter", "Talent Acquisition", "Recrutadora") | o arquivo base | `message.txt` |
 | quem escreve código (desenvolvedor, engenheiro de software, front/back end, full stack, mobile, tech lead, arquiteto de software) | `dev_` + base | `dev_message.txt` |
-| todos os outros (gestores, CTOs, RH, QA, dados, DevOps), ou um título que não pôde ser lido | `generic_` + base | `generic_message.txt` |
+| todos os outros (gestores, CTOs, RH, QA, dados, DevOps) | `generic_` + base | `generic_message.txt` |
 
 Recrutamento vence: "Tech Recruiter | Hiring Developers" é recrutador.
 Estudantes, estagiários e trainees com um cargo de dev no título são devs.
+
+Um contato cujo título não pôde ser lido é pulado, em vez de receber um
+palpite. Ele fica fora do histórico de envios, então uma próxima execução tenta
+de novo.
 
 As variantes são procuradas como o arquivo base, uma a uma: primeiro na sua
 pasta de templates, depois nos templates do pacote. Quando uma não existe (não
@@ -404,9 +411,9 @@ há `generic_reconnect.txt`, por exemplo), essa audiência recebe o arquivo base
 e a execução avisa uma vez, na inicialização.
 
 A linha de cada contato no log mostra o título, a audiência e o arquivo usado;
-a execução termina com uma contagem por audiência, incluindo quantos títulos
-não puderam ser lidos. Se o LinkedIn mudar o cartão de perfil, todo mundo cai
-no genérico: é nessa contagem que isso aparece.
+a execução termina com uma contagem por audiência e quantos títulos não
+puderam ser lidos (e foram pulados). Se o LinkedIn mudar o cartão de perfil,
+todo mundo é pulado: é nessa contagem que isso aparece.
 
 `--dry-run --by-title` abre todas as conversas para ler o título, então é mais
 lento que um dry run comum e marca as conversas não lidas como lidas. Ainda
